@@ -38,16 +38,21 @@ RgbColor bunt = RgbColor(50);
 // OLEDs
 // GPIO18 : SCK Serial Clock)
 // GPIO19 : SDA (Master Out, Salve In = Serial Data Output)
-//U8G2_SSD1327_ZJY_128X128_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-//U8G2_SSD1327_ZJY_128X128_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
-//U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-//U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
-U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-
+// using display = U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI;
+using display = U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI;
+display oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
+//display oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
 
 // USB MIDI object
 Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
+
+
+// Function protos
+
+void drawUI(display o);
+
+// Callbacks
 
 static void encodersCB(unsigned int enc,int value,int delta) {
 #ifdef USE_LOGING
@@ -58,6 +63,7 @@ static void encodersCB(unsigned int enc,int value,int delta) {
     case 1: bunt.G = value; break;
     case 2: bunt.B = value; break;
   }
+  drawUI(oled1);
 #ifdef USE_MIDI
   MIDI.sendControlChange(9 + enc, value, 1);
 #endif
@@ -67,6 +73,47 @@ static void buttonCB(int enc, int state) {
 #ifdef USE_LOGING
     Serial.printf("Button:[%u]; State= %d\n", enc, state);
 #endif
+}
+
+static void midiControlChangeCB(uint8_t channel, uint8_t controlNumber, uint8_t controlValue) {
+}
+
+static void midiSysExCB(byte * array, unsigned size) {
+}
+
+void drawUI(display o) {
+  // TODO: maybe pass v1...v4 as params
+  auto v1 = encoders[0].getValue();
+  auto v2 = encoders[1].getValue();
+  auto v3 = encoders[2].getValue();
+  auto v4 = /*encoders[3].getValue()/2;*/ 50;
+  o.clearBuffer();
+  o.setDrawColor(1);
+  // left column
+  o.drawFrame(0, 0, 63, 15);
+  o.drawBox(0, 1, v1/2, 14);
+  o.drawStr(0, 26 ,"Time L");  // 26 = 16 + 8 + 2
+  o.drawStr(0, 45 ,"Feedback");
+  o.drawFrame(0, 48, 63, 15);
+  o.drawBox(0, 49, v2/2, 14);
+  // right column
+  o.drawFrame(64, 0, 63, 15);
+  o.drawBox(64, 1, v3/2, 14);
+  o.drawStr(64, 26 ,"Time R");  // 26 = 16 + 8 + 2
+  o.drawStr(64, 45 ,"Dry/Wet");
+  o.drawFrame(64, 48, 63, 15);
+  o.drawBox(64, 49, v4/2, 14);
+  // values
+  o.setDrawColor(2);
+  o.setCursor(1, 2+8);
+  o.print(u8x8_u8toa(v1, 3));
+  o.setCursor(1,50+8);
+  o.print(u8x8_u8toa(v2, 3));
+  o.setCursor(65, 2+8);
+  o.print(u8x8_u8toa(v3, 3));
+  o.setCursor(65,50+8);
+  o.print(u8x8_u8toa(v4, 3));
+  o.sendBuffer();  // update oled
 }
 
 void setup() {
@@ -79,7 +126,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 
   for(unsigned i=0; i<EncoderCount; i++) {
-    encoders[i].setLimits(0,255);
+    encoders[i].setLimits(0,127);
     encoders[i].setValue(50);  
     encoders[i].attachButtonCallback([i](int state) { buttonCB(i, 1-state); }); // invert state, as we do input_pullup
   }
@@ -91,16 +138,9 @@ void setup() {
 
   oled1.begin();  //  Start OLED 1
   oled1.setContrast(200);  //  Brightness setting from 0 to 255
-  oled1.setFont(u8g2_font_spleen6x12_mf);
-  //oled1.setFont(u8g2_font_t0_11_tf);
-  oled1.clearBuffer();
-  oled1.drawFrame(0, 0, 127, 15);
-  oled1.drawBox(1, 1, 50, 14);
-  oled1.drawStr(0, 26 ,"Delay Time");  // 25 = 16 + 8 + 2
-  oled1.drawStr(0, 45 ,"Feedback");
-  oled1.drawFrame(0, 48, 127, 15);
-  oled1.drawBox(1, 49, 20, 14);
-  oled1.sendBuffer();  // Send to OLED 1
+  oled1.setFont(u8g2_font_spleen6x12_mf); // m=monochrome,f= full charset
+  oled1.setFontMode(1); // make transparent
+  drawUI(oled1);
 
 #ifdef USE_MIDI
   TinyUSBDevice.setManufacturerDescriptor("Ensonic");
@@ -110,6 +150,8 @@ void setup() {
   }
   MIDI.begin(MIDI_CHANNEL_OMNI);
   MIDI.turnThruOff();
+  MIDI.setHandleControlChange(midiControlChangeCB);
+  MIDI.setHandleSystemExclusive(midiSysExCB);
   while( !TinyUSBDevice.mounted() ) delay(1);
 #endif
 #ifdef USE_LOGING
