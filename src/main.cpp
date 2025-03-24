@@ -32,8 +32,17 @@ const uint8_t LedPin = 1;
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
 //NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(LedCount, LedPin);
 NeoPixelBus<NeoGrbFeature, Rp2040x4Pio1Ws2812xMethod> leds(LedCount, LedPin); // note: modern WS2812 with letter like WS2812b
-RgbColor black = RgbColor(0);
-RgbColor bunt = RgbColor(50);
+// Bitwig colors
+HslColor bitwigScheme[] = {
+  HslColor(RgbColor(0xf7, 0x1b, 0x3e)), // red
+  HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
+  HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
+  HslColor(RgbColor(0x5b, 0xc5, 0x15)), // lime
+  HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
+  HslColor(RgbColor(0x5c, 0xa8, 0xee)), // light blue
+  HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
+  HslColor(RgbColor(0xff, 0x54, 0xb0)), // pink
+};
 
 // OLEDs
 // GPIO18 : SCK Serial Clock)
@@ -58,11 +67,9 @@ static void encodersCB(unsigned int enc,int value,int delta) {
 #ifdef USE_LOGING
   Serial.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
 #endif
-  switch (enc) {
-    case 0: bunt.R = value; break;
-    case 1: bunt.G = value; break;
-    case 2: bunt.B = value; break;
-  }
+  auto hslc = bitwigScheme[enc];
+  hslc.L = value / 127.0f;
+  leds.SetPixelColor(enc, hslc);
   drawUI(oled1);
 #ifdef USE_MIDI
   MIDI.sendControlChange(9 + enc, value, 1);
@@ -83,6 +90,8 @@ static void midiSysExCB(byte * array, unsigned size) {
 
 void drawUI(display o) {
   // TODO: maybe pass v1...v4 as params
+  // TODO: if we update from the callback, we can use updateDisplayArea() instead of sendBuffer()
+  // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
   auto v1 = encoders[0].getValue();
   auto v2 = encoders[1].getValue();
   auto v3 = encoders[2].getValue();
@@ -113,7 +122,7 @@ void drawUI(display o) {
   o.print(u8x8_u8toa(v3, 3));
   o.setCursor(65,50+8);
   o.print(u8x8_u8toa(v4, 3));
-  o.sendBuffer();  // update oled
+  o.sendBuffer();  // update display
 }
 
 void setup() {
@@ -134,6 +143,11 @@ void setup() {
   encoders.attachCallback(encodersCB);
 
   leds.Begin();
+  for (uint16_t i=0; i<LedCount; i++) {
+    auto hslc = bitwigScheme[i];
+    hslc.L = encoders[i].getValue() / 127.0f;
+    leds.SetPixelColor(i, hslc);
+  }
   leds.Show();
 
   oled1.begin();  //  Start OLED 1
@@ -173,13 +187,6 @@ void loop() {
     digitalWrite(LED_BUILTIN, blink);
     blink = !blink;
 
-    for(uint16_t i=0; i<LedCount; i++) {
-      if (iter == i) {
-        leds.SetPixelColor(i, bunt);
-      } else {
-        leds.SetPixelColor(i, black);
-      }
-    }
     iter = (iter + 1) % LedCount;
     leds.Show();
 
