@@ -59,7 +59,7 @@ Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
 enum class SysExCmd : byte { ParamName, PrettyValue };
 const uint8_t ControllerBase = 9;
-const unsigned maxNameLen = 11;
+const unsigned maxNameLen = 14;
 char paramNames[numParams][maxNameLen+1] = { 0, };
 char prettyValues[numParams][maxNameLen+1] = { 0, };
 
@@ -138,6 +138,7 @@ static void midiSysExCB(byte * data, unsigned size) {
 void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix3) {
   // TODO: if we update from the callback, we can use updateDisplayArea() instead of sendBuffer()
   // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
+  // TODO: if we want to support longer text, maybe clip? or scroll, smaller fonts?
   auto v0 = encoders[ix0].getValue();
   auto v1 = encoders[ix1].getValue();
   auto v2 = encoders[ix2].getValue();
@@ -219,7 +220,15 @@ void setup() {
 
   oled1.begin();
   oled1.setContrast(200);  //  Brightness setting from 0 to 255
-  oled1.setFont(u8g2_font_spleen6x12_mf); // m=monospaced,f= full charset
+  oled1.setFont(
+    // 6 pixel
+    // u8g2_font_spleen5x8_mf // same width as: u8g2_font_helvR08_tf
+    // 7 pixel
+    u8g2_font_NokiaSmallPlain_tf
+    // 8 pixel
+    // u8g2_font_helvR08_tf // not monospaced, can fit more text
+    // u8g2_font_spleen6x12_mf // m=monospaced,f= full charset
+  );
   oled1.setFontMode(1); // make transparent (no bg)
   drawUIPage(oled1, 0, 1, 2, 2);
   //drawUIPage(oled1, 0, 1, 4, 5);
