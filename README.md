@@ -45,3 +45,9 @@ The following commands are implemented:
   * id: 0...7
   * len: len of name, truncated to fit the display
   * name: ascii string data
+
+# Links
+
+I've got inspiration from many other places. Let me mention a few similar
+projects:
+* [Ottopot](https://gerotakke.de/ottopot/)
