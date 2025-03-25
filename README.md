@@ -46,6 +46,10 @@ The following commands are implemented:
   * len: len of name, truncated to fit the display
   * name: ascii string data
 
+# Code
+
+The code uses [platformIO](https://platformio.org/). See [platformio.ini](platformio.ini) for the used libraries.
+
 # Links
 
 I've got inspiration from many other places. Let me mention a few similar
