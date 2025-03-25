@@ -58,10 +58,11 @@ char *lastLog=nullptr;
 // USB MIDI object
 Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
-enum class SysExCmd : byte { ParamName };
+enum class SysExCmd : byte { ParamName, PrettyValue };
 const uint8_t ControllerBase = 9;
-const unsigned maxParamNameLen = 15;
-char paramNames[numParams][maxParamNameLen+1] = { 0, };
+const unsigned maxNameLen = 15;
+char paramNames[numParams][maxNameLen+1] = { 0, };
+char prettyValues[numParams][maxNameLen+1] = { 0, };
 
 // Function protos
 
@@ -92,7 +93,7 @@ static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) 
   drawUI(enc);
 }
 
-static void midiSysExParamLength(byte *data, unsigned size) {
+static void midiSysExTextValue(byte *data, unsigned size, char text[numParams][maxNameLen+1]) {
   // param-ix, length, data
   if (size < 2) {
     log("sysexcmd-0 too short");
@@ -103,9 +104,9 @@ static void midiSysExParamLength(byte *data, unsigned size) {
     return;
   }
   unsigned ix = data[0]; 
-  unsigned len = (data[1] < maxParamNameLen) ? data[1] : maxParamNameLen;
-  strncpy(paramNames[ix], (char *)(&data[2]), len);
-  paramNames[ix][len] = '\0';
+  unsigned len = (data[1] < maxNameLen) ? data[1] : maxNameLen;
+  strncpy(text[ix], (char *)(&data[2]), len);
+  text[ix][len] = '\0';
   drawUI(ix);
 }
 
@@ -124,7 +125,10 @@ static void midiSysExCB(byte * data, unsigned size) {
   data=&data[3]; size -=4;
   switch(cmd) {
     case SysExCmd::ParamName:
-      midiSysExParamLength(data, size);
+      midiSysExTextValue(data, size, paramNames);
+      break;
+    case SysExCmd::PrettyValue:
+      midiSysExTextValue(data, size, prettyValues);
       break;
     default:
       log("sysex: unknown cmd");
@@ -145,7 +149,7 @@ void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix
   o.drawFrame(0, 0, 63, 15);
   o.drawBox(0, 1, v0/2, 14);
   o.drawStr(0, 26, paramNames[ix0]);  // 26 = 16 + 8 + 2
-  o.drawStr(0, 45, paramNames[ix3]);
+  o.drawStr(0, 45, paramNames[ix2]);
   o.drawFrame(0, 48, 63, 15);
   o.drawBox(0, 49, v2/2, 14);
   // right column
@@ -157,14 +161,11 @@ void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix
   o.drawBox(64, 49, v3/2, 14);
   // values
   o.setDrawColor(2);
-  o.setCursor(1, 2+8);
-  o.print(u8x8_u8toa(v0, 3));
-  o.setCursor(1,50+8);
-  o.print(u8x8_u8toa(v2, 3));
-  o.setCursor(65, 2+8);
-  o.print(u8x8_u8toa(v1, 3));
-  o.setCursor(65,50+8);
-  o.print(u8x8_u8toa(v3, 3));
+  o.drawStr(1, 2+8, prettyValues[ix0]);
+  o.drawStr(1,50+8, prettyValues[ix2]);
+  o.drawStr(65, 2+8, prettyValues[ix1]);
+  o.drawStr(65,50+8, prettyValues[ix3]);
+  // TODO: see log()
   if (lastLog) {
     oled1.drawStr(0, 34, lastLog);
   }

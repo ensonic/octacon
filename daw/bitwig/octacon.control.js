@@ -31,15 +31,25 @@ function init() {
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
 		let valueFn = onValueChange.bind(this, j);
 		let nameFn = onNameChange.bind(this, j);
+		let displayValueFn = onDisplayValueChange.bind(this, j);
 		let param = remoteControlCursor.getParameter(j);
 		param.markInterested();
 		param.setIndication(true);
 		param.value().addValueObserver(127, valueFn);
 		param.name().addValueObserver(nameFn)
+		param.displayedValue().addValueObserver(displayValueFn);
 	}
-	// TODO: see if we can get human readable param value
-
 	println("octacon initialized!");
+}
+
+function onValueChange(index, value) {
+	let param = remoteControlCursor.getParameter(index);
+	println("Id: " + index + " PrettyValue: " + param.displayedValue().get());
+	midiQueue.push({
+		type: 'cc',
+		ix: index,
+		value: value,
+	});
 }
 
 function onNameChange(index, value) {
@@ -55,12 +65,17 @@ function onNameChange(index, value) {
 	})
 }
 
-function onValueChange(index, value) {
+function onDisplayValueChange(index, value) {
+	println("Id: " + index + " PrettyValue: " + value);
+	let ix = index.toString(16).padStart(2, '0');
+	let len = value.length.toString(16).padStart(2, '0');
+	value = value.replace(/[^\x00-\x7F]/g, "").trim();
+	let name = value.toHex(value.length)
 	midiQueue.push({
-		type: 'cc',
-		ix: index,
-		value: value,
-	});
+		type: 'sysex',
+		// 01 + <ix> + <len> + <name>
+		data: '01 ' + ix + len + name,
+	})
 }
 
 // Called when a short MIDI message is received on MIDI input port 0.
