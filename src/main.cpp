@@ -13,8 +13,10 @@ using namespace EncoderTool;
 
 // Hardware defines
 
+const unsigned numParams = 8;
+
 // Encoders
-// TODO: change to 8
+// TODO: change to numParams
 constexpr unsigned EncoderCount = 3;  // number of attached encoders: 
 
 constexpr unsigned EncMux0 = 11;       // address pin 0
@@ -26,7 +28,7 @@ constexpr unsigned EncSigBtn = 10;     // output pin SIG of multiplexer C
 EncPlex4051 encoders(EncoderCount, EncMux0, EncMux1, EncMux2, EncSigA, EncSigB, EncSigBtn);
 
 // LEDs
-const uint16_t LedCount = 8;
+const uint16_t LedCount = numParams;
 const uint8_t LedPin = 1;
 // https://github.com/Makuna/NeoPixelBus/blob/master/examples/RP2040/NeoPixel_RP2040_PioX4/NeoPixel_RP2040_PioX4.ino
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
@@ -51,26 +53,20 @@ HslColor bitwigScheme[] = {
 using display = U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI;
 display oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
 //display oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
+char *lastLog=nullptr;
 
 // USB MIDI object
 Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
+enum class SysExCmd : byte { ParamName };
 const uint8_t ControllerBase = 9;
-const int maxNameLen = 16;
-char paramNames[8][maxNameLen] = {
-  "Time L",
-  "Time R",
-  "Feedback",
-  "Dry/Wet",
-  "",
-  "",
-  "",
-  "",
-};
+const unsigned maxParamNameLen = 15;
+char paramNames[numParams][maxParamNameLen+1] = { 0, };
 
 // Function protos
 
-void drawUI(display o, int ix0, int ix1, int ix2, int ix3);
+void drawUI(unsigned ix);
+void log(char *str);
 
 // Callbacks
 
@@ -78,12 +74,7 @@ static void encodersCB(unsigned int enc,int value,int delta) {
 #ifdef USE_LOGING
   Serial.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
 #endif
-  if (!(enc & 0x2)) {
-    drawUI(oled1, 0, 1, 2, 2);
-    //drawUI(oled1, 0, 1, 4, 5);
-  } /*else {
-    drawUI(oled2, 2, 3, 6, 7);
-  }*/
+  drawUI(enc);
 #ifdef USE_MIDI
   MIDI.sendControlChange(ControllerBase + enc, value, 1);
 #endif
@@ -98,19 +89,50 @@ static void buttonCB(int enc, int state) {
 static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
   auto enc = number - ControllerBase;
   encoders[enc].setValue(value);
-  if (!(enc & 0x2)) {
-    drawUI(oled1, 0, 1, 2, 2);
-    //drawUI(oled1, 0, 1, 4, 5);
-  } /*else {
-    drawUI(oled2, 2, 3, 6, 7);
-  }*/
+  drawUI(enc);
 }
 
-static void midiSysExCB(byte * array, unsigned size) {
-  // TODO: update param names
+static void midiSysExParamLength(byte *data, unsigned size) {
+  // param-ix, length, data
+  if (size < 2) {
+    log("sysexcmd-0 too short");
+    return;
+  }
+  if (data[0] >= numParams) {
+    log("sysexcmd-0 bad param-ix");
+    return;
+  }
+  unsigned ix = data[0]; 
+  unsigned len = (data[1] < maxParamNameLen) ? data[1] : maxParamNameLen;
+  strncpy(paramNames[ix], (char *)(&data[2]), len);
+  paramNames[ix][len] = '\0';
+  drawUI(ix);
 }
 
-void drawUI(display o, int ix0, int ix1, int ix2, int ix3) {
+static void midiSysExCB(byte * data, unsigned size) {
+  // min size is 'F0 7D` + cmd + 'F7'
+  if (size < 4) {
+    log("sysex too short");
+    return;
+  }
+  // bad sysex
+  if (data[0] != 0xF0 || data[1] != 0x7D || data[size-1] != 0xF7) {
+    log("bad sysex");
+    return;
+  }
+  auto cmd = SysExCmd(data[2]);
+  data=&data[3]; size -=4;
+  switch(cmd) {
+    case SysExCmd::ParamName:
+      midiSysExParamLength(data, size);
+      break;
+    default:
+      log("sysex: unknown cmd");
+      break;
+  }
+}
+
+void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix3) {
   // TODO: if we update from the callback, we can use updateDisplayArea() instead of sendBuffer()
   // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
   auto v0 = encoders[ix0].getValue();
@@ -143,7 +165,31 @@ void drawUI(display o, int ix0, int ix1, int ix2, int ix3) {
   o.print(u8x8_u8toa(v1, 3));
   o.setCursor(65,50+8);
   o.print(u8x8_u8toa(v3, 3));
+  if (lastLog) {
+    oled1.drawStr(0, 34, lastLog);
+  }
   o.sendBuffer();  // update display
+}
+
+void drawUI(unsigned ix) {
+  drawUIPage(oled1, 0, 1, 2, 2);
+  /* once we have 2 displays
+  if (!(ix & 0x2)) {
+    drawUIPage(oled1, 0, 1, 4, 5);
+  } else {
+    drawUIPage(oled2, 2, 3, 6, 7);
+  }
+  */
+}
+
+// TODO: figure a better way (e.g. 2nd usb serial)
+void log(char *str) {
+#ifdef USE_LOGING
+  Serial.println(str);
+#else
+  lastLog = str;
+  drawUI(0);
+#endif
 }
 
 void setup() {
@@ -166,7 +212,7 @@ void setup() {
   leds.Begin();
   for (uint16_t i=0; i<LedCount; i++) {
     auto hslc = bitwigScheme[i];
-    hslc.L = encoders[i].getValue() / 127.0f;
+    hslc.L = 0.3;
     leds.SetPixelColor(i, hslc);
   }
   leds.Show();
@@ -175,9 +221,9 @@ void setup() {
   oled1.setContrast(200);  //  Brightness setting from 0 to 255
   oled1.setFont(u8g2_font_spleen6x12_mf); // m=monochrome,f= full charset
   oled1.setFontMode(1); // make transparent
-  drawUI(oled1, 0, 1, 2, 2);
-  //drawUI(oled1, 0, 1, 4, 5);
-  //drawUI(oled2, 2, 3, 6, 7);
+  drawUIPage(oled1, 0, 1, 2, 2);
+  //drawUIPage(oled1, 0, 1, 4, 5);
+  //drawUIPage(oled2, 2, 3, 6, 7);
 
 #ifdef USE_MIDI
   TinyUSBDevice.setManufacturerDescriptor("Ensonic");
