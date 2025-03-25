@@ -84,6 +84,9 @@ static void buttonCB(int enc, int state) {
 #ifdef USE_LOGING
     Serial.printf("Button:[%u]; State= %d\n", enc, state);
 #endif
+#ifdef USE_MIDI
+  MIDI.sendControlChange(ControllerBase + numParams + enc, state*64, 1);
+#endif
 }
 
 static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {

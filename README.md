@@ -33,8 +33,8 @@ Source  Event                  Ch  Data
 
 ## control changes
 
-The encoders send values on cc 9 to 16.
-TODO: encoder buttons
+The encoders send values on cc 9 to 16
+The encoder buttons send 64 on cc 17 to 25
 
 ## sysex
 
