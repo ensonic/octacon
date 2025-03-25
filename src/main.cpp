@@ -17,8 +17,8 @@ const unsigned numParams = 8;
 
 // Encoders
 // TODO: change to numParams
-constexpr unsigned EncoderCount = 3;  // number of attached encoders: 
-
+// TODO: if we switch to analog encoders, we need to change SigA/B to 26/27
+constexpr unsigned EncoderCount = 3;  // number of attached encoders
 constexpr unsigned EncMux0 = 11;       // address pin 0
 constexpr unsigned EncMux1 = 12;       // ...
 constexpr unsigned EncMux2 = 13;       // address pin 2
@@ -30,7 +30,6 @@ EncPlex4051 encoders(EncoderCount, EncMux0, EncMux1, EncMux2, EncSigA, EncSigB, 
 // LEDs
 const uint16_t LedCount = numParams;
 const uint8_t LedPin = 1;
-// https://github.com/Makuna/NeoPixelBus/blob/master/examples/RP2040/NeoPixel_RP2040_PioX4/NeoPixel_RP2040_PioX4.ino
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
 //NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(LedCount, LedPin);
 NeoPixelBus<NeoGrbFeature, Rp2040x4Pio1Ws2812xMethod> leds(LedCount, LedPin); // note: modern WS2812 with letter like WS2812b
@@ -53,21 +52,21 @@ HslColor bitwigScheme[] = {
 using display = U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI;
 display oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
 //display oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
-char *lastLog=nullptr;
+String lastLog="";
 
 // USB MIDI object
 Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
 enum class SysExCmd : byte { ParamName, PrettyValue };
 const uint8_t ControllerBase = 9;
-const unsigned maxNameLen = 15;
+const unsigned maxNameLen = 11;
 char paramNames[numParams][maxNameLen+1] = { 0, };
 char prettyValues[numParams][maxNameLen+1] = { 0, };
 
 // Function protos
 
 void drawUI(unsigned ix);
-void log(char *str);
+void log(String str);
 
 // Callbacks
 
@@ -96,11 +95,11 @@ static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) 
 static void midiSysExTextValue(byte *data, unsigned size, char text[numParams][maxNameLen+1]) {
   // param-ix, length, data
   if (size < 2) {
-    log("sysexcmd-0 too short");
+    log("sysexcmd too short");
     return;
   }
   if (data[0] >= numParams) {
-    log("sysexcmd-0 bad param-ix");
+    log("sysexcmd bad param-ix");
     return;
   }
   unsigned ix = data[0]; 
@@ -166,8 +165,8 @@ void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix
   o.drawStr(65, 2+8, prettyValues[ix1]);
   o.drawStr(65,50+8, prettyValues[ix3]);
   // TODO: see log()
-  if (lastLog) {
-    oled1.drawStr(0, 34, lastLog);
+  if (lastLog.isEmpty()) {
+    oled1.drawStr(0, 34, lastLog.c_str());
   }
   o.sendBuffer();  // update display
 }
@@ -184,7 +183,7 @@ void drawUI(unsigned ix) {
 }
 
 // TODO: figure a better way (e.g. 2nd usb serial)
-void log(char *str) {
+void log(String str) {
 #ifdef USE_LOGING
   Serial.println(str);
 #else
@@ -213,15 +212,15 @@ void setup() {
   leds.Begin();
   for (uint16_t i=0; i<LedCount; i++) {
     auto hslc = bitwigScheme[i];
-    hslc.L = 0.3;
+    hslc.L = 0.3;  // Brightness from 0.0 to 1.0
     leds.SetPixelColor(i, hslc);
   }
   leds.Show();
 
-  oled1.begin();  //  Start OLED 1
+  oled1.begin();
   oled1.setContrast(200);  //  Brightness setting from 0 to 255
-  oled1.setFont(u8g2_font_spleen6x12_mf); // m=monochrome,f= full charset
-  oled1.setFontMode(1); // make transparent
+  oled1.setFont(u8g2_font_spleen6x12_mf); // m=monospaced,f= full charset
+  oled1.setFontMode(1); // make transparent (no bg)
   drawUIPage(oled1, 0, 1, 2, 2);
   //drawUIPage(oled1, 0, 1, 4, 5);
   //drawUIPage(oled2, 2, 3, 6, 7);
@@ -243,23 +242,17 @@ void setup() {
 #endif
 }
 
-static uint16_t iter = 0;
-static unsigned t0 = 0;
-static bool blink = false;
-
 void loop() {
   encoders.tick();
 #ifdef USE_MIDI
   MIDI.read();
 #endif
 
+  static unsigned t0 = 0;
+  static bool blink = false;
   if (millis() - t0 > 500)  {
     digitalWrite(LED_BUILTIN, blink);
     blink = !blink;
-
-    iter = (iter + 1) % LedCount;
-    leds.Show();
-
     t0 = millis();
   }
 }
