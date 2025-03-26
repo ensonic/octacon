@@ -1,7 +1,7 @@
 // display layout code
 
-#ifndef UI_h
-#define UI_h
+#ifndef UI_H
+#define UI_H
 
 #include <U8g2lib.h>
 

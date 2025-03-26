@@ -5,6 +5,7 @@
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
 
+#include <debug.h>
 #include <ui.h>
 
 using namespace EncoderTool;
@@ -59,18 +60,21 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
 enum class SysExCmd : byte { ParamName, PrettyValue };
 const uint8_t ControllerBase = 9;
 
+// Debugging (disable by passing a nullptr)
+Debug dbg(&Serial2);
+
 // Function protos
 
 // Callbacks
 
 static void encodersCB(unsigned int enc,int value,int delta) {
-  Serial2.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
+  dbg.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
   ui.setValue(enc, value);
   MIDI.sendControlChange(ControllerBase + enc, value, 1);
 }
 
 static void buttonCB(int enc, int state) {
-  Serial2.printf("Button:[%u]; State= %d\n", enc, state);
+  dbg.printf("Button:[%u]; State= %d\n", enc, state);
   MIDI.sendControlChange(ControllerBase + numParams + enc, state*64, 1);
 }
 
@@ -83,11 +87,11 @@ static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) 
 static void midiSysExParamName(byte *data, unsigned size) {
   // param-ix, length, data
   if (size < 2) {
-    Serial2.println("sysexcmd too short");
+    dbg.println("sysexcmd too short");
     return;
   }
   if (data[0] >= numParams) {
-    Serial2.println("sysexcmd bad param-ix");
+    dbg.println("sysexcmd bad param-ix");
     return;
   }
   ui.setName(data[0], (char *)(&data[2]), data[1]);
@@ -96,11 +100,11 @@ static void midiSysExParamName(byte *data, unsigned size) {
 static void midiSysExPrettyValue(byte *data, unsigned size) {
   // param-ix, length, data
   if (size < 2) {
-    Serial2.println("sysexcmd too short");
+    dbg.println("sysexcmd too short");
     return;
   }
   if (data[0] >= numParams) {
-    Serial2.println("sysexcmd bad param-ix");
+    dbg.println("sysexcmd bad param-ix");
     return;
   }
   ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
@@ -109,12 +113,12 @@ static void midiSysExPrettyValue(byte *data, unsigned size) {
 static void midiSysExCB(byte * data, unsigned size) {
   // min size is 'F0 7D` + cmd + 'F7'
   if (size < 4) {
-    Serial2.println("sysex too short");
+    dbg.println("sysex too short");
     return;
   }
   // bad sysex
   if (data[0] != 0xF0 || data[1] != 0x7D || data[size-1] != 0xF7) {
-    Serial2.println("bad sysex");
+    dbg.println("bad sysex");
     return;
   }
   auto cmd = SysExCmd(data[2]);
@@ -127,17 +131,14 @@ static void midiSysExCB(byte * data, unsigned size) {
       midiSysExPrettyValue(data, size);
       break;
     default:
-      Serial2.println("sysex: unknown cmd");
+      dbg.println("sysex: unknown cmd");
       break;
   }
 }
 
 void setup() {
-  Serial2.setRX(5);
-  Serial2.setTX(4);
-  Serial2.begin(115200);
-  while (!Serial2); // wait for serial attach
-  Serial2.println("Setup start");
+  dbg.init(5,4);
+  dbg.println("Setup start");
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -162,7 +163,7 @@ void setup() {
   TinyUSBDevice.setManufacturerDescriptor("Ensonic");
   TinyUSBDevice.setProductDescriptor("Octacon");
   if (!usbMidi.begin()) {
-    Serial.println("Starting usbMidi failed");
+    dbg.println("Starting usbMidi failed");
   }
   MIDI.begin(MIDI_CHANNEL_OMNI);
   MIDI.turnThruOff();
@@ -170,7 +171,7 @@ void setup() {
   MIDI.setHandleSystemExclusive(midiSysExCB);
   while( !TinyUSBDevice.mounted() ) delay(1);
 
-  Serial2.println("Setup done");
+  dbg.println("Setup done");
 }
 
 void loop() {
