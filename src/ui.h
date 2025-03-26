@@ -16,6 +16,7 @@ public:
 
     // initialize displays
     void init();
+    void begin();
     // redraw for given parameter index
     void draw(unsigned ix); 
 

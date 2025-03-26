@@ -10,6 +10,26 @@ UI::UI(U8G2 *d1, U8G2 *d2) : d1(d1), d2(d2) {}
 void UI::init(void) {
     initPage(d1);
     initPage(d2);
+
+    // TODO: make this an "about" page and also show version?
+    // we could report via sysex, but also trigger by holding buttons
+    // If we feel crazy, we can also embed a pong game :)
+    const char *logo = "OCTACON";
+    auto w = d1->getStrWidth(logo);
+    auto x = 64 - w; // we print with double size
+
+    d1->clearBuffer();
+    d1->drawStrX2(x,32+8, logo);
+    d1->sendBuffer();
+    if(d2) {
+        d2->clearBuffer();
+        d2->drawStrX2(x,32+8, logo);
+        d2->sendBuffer();
+    }
+    delay(100);
+}
+
+void UI::begin() {
     enableExtInfo(0);
 }
 

@@ -73,6 +73,7 @@ static void buttonCB(int enc, int state) {
 }
 
 void setup() {
+    unsigned ts0 = millis();
     dbg.init(5,4);
     dbg.println("Setup start");
 
@@ -98,7 +99,9 @@ void setup() {
 
     mio.init();
 
-    dbg.println("Setup done");
+    ui.begin();
+
+    dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
 void loop() {
