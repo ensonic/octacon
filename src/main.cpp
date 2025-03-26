@@ -45,7 +45,7 @@ HslColor bitwigScheme[] = {
 
 // OLEDs
 // GPIO18 : SCK Serial Clock)
-// GPIO19 : SDA (Master Out, Salve In = Serial Data Output)
+// GPIO19 : SDA (Master Out, Slave In = Serial Data Output)
 // TODO: change to U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI;
 U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
 //U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
