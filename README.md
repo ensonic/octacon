@@ -41,10 +41,17 @@ The encoder buttons send 64 on cc 17 to 25
 Since Octacon uses usb midi and is a hobby project, we're using the `7D` (prototyping, test, private use and experimentation). 
 
 The following commands are implemented:
-* 00: (recv) parameter names: `00 + <ix> + <len> + value`
+* 00: (recv) parameter names: `00 + <ix> + <len> + <name>`
   * id: 0...7
   * len: len of name, truncated to fit the display
   * name: ascii string data
+* 01: (recv) pretty parameter value: `01 + <ix> + <len> + <name>`
+  * id: 0...7
+  * len: len of name, truncated to fit the display
+  * name: ascii string data
+* 02: (recv) daw connected? : `02 + <connected>`
+  * connected: 0 = off, anything else = on
+  * when off, parameter names and pretty values are generated
 
 # Code
 

@@ -15,6 +15,8 @@ host.addDeviceNameBasedDiscoveryPair(["Octacon MIDI 1"], ["Octacon MIDI 1"]);
 
 const SYSEX_BEGIN = "F0 7D ";
 const SYSEX_END = " F7";
+const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END
+const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END
 
 let remoteControlCursor;
 let outPort;
@@ -23,6 +25,7 @@ let midiQueue = [];
 function init() {
 	host.getMidiInPort(0).setMidiCallback(onMidi0);
 	outPort = host.getMidiOutPort(0);
+	outPort.sendSysex(SYSEX_HELLO);
 
 	// follows UI selection
 	let cursorDevice = host.createCursorTrack(0, 0).createCursorDevice();
@@ -110,5 +113,5 @@ function flush() {
 }
 
 function exit() {
-
+	outPort.sendSysex(SYSEX_BYE);
 }

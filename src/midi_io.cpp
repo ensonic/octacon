@@ -23,7 +23,7 @@ static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) 
 static void midiSysExParamName(byte *data, unsigned size) {
     // param-ix, length, data
     if (size < 2) {
-        dbg.println("sysexcmd too short");
+        dbg.printf("sysexcmd-%u too short\n", SysExCmd::ParamName);
         return;
     }
     ui.setName(data[0], (char *)(&data[2]), data[1]);
@@ -32,10 +32,19 @@ static void midiSysExParamName(byte *data, unsigned size) {
 static void midiSysExPrettyValue(byte *data, unsigned size) {
     // param-ix, length, data
     if (size < 2) {
-        dbg.println("sysexcmd too short");
+        dbg.printf("sysexcmd-%u too short\n", SysExCmd::PrettyValue);
         return;
     }
      ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
+}
+
+static void midiSysExDawSync(byte *data, unsigned size) {
+    // on/off
+    if (size < 1) {
+        dbg.printf("sysexcmd-%u too short\n", SysExCmd::DawSync);
+        return;
+    }
+     ui.enableExtInfo(data[0]>0);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {
@@ -53,14 +62,17 @@ static void midiSysExCB(byte * data, unsigned size) {
     data=&data[3]; size -=4;
     switch(cmd) {
         case SysExCmd::ParamName:
-        midiSysExParamName(data, size);
-        break;
+            midiSysExParamName(data, size);
+            break;
         case SysExCmd::PrettyValue:
-        midiSysExPrettyValue(data, size);
-        break;
+            midiSysExPrettyValue(data, size);
+            break;
+        case SysExCmd::DawSync:
+            midiSysExDawSync(data, size);
+            break;
         default:
-        dbg.println("sysex: unknown cmd");
-        break;
+            dbg.println("sysex: unknown cmd");
+            break;
     }
 }
 

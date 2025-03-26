@@ -22,10 +22,12 @@ public:
     void setName(unsigned ix, char *str, unsigned len);
     void setPrettyValue(unsigned ix, char *str, unsigned len);
     void setValue(unsigned ix, unsigned value);
+    void enableExtInfo(bool enable);
 
 private:
     U8G2 *d1, *d2;
     static const unsigned numParams = 8;
+    bool extInfo = false;
     UIParam p[numParams] = { {"","",0}, };
     
     void initPage(U8G2 *d);

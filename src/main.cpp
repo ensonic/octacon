@@ -78,6 +78,8 @@ void setup() {
 
     pinMode(LED_BUILTIN, OUTPUT);
 
+    ui.init();
+
     for(unsigned i=0; i<EncoderCount; i++) {
         encoders[i].setLimits(0,127);
         encoders[i].setValue(50);
@@ -95,8 +97,6 @@ void setup() {
     leds.Show();
 
     mio.init();
-
-    ui.init();
 
     dbg.println("Setup done");
 }

@@ -8,11 +8,10 @@
 
 const uint8_t ControllerBase = 9;
 
-// TODO: maybe add daw-connect/disconnect cmd,
-// daw-disconnect: reset names/values:  ui then shows cc-names on screen and midi values
 enum class SysExCmd : byte {
     ParamName,      // receive parameter names
     PrettyValue,    // receive human readable parameter values
+    DawSync,        // daw attached?
 };
 
 class MidiIO {

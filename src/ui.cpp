@@ -10,11 +10,15 @@ UI::UI(U8G2 *d1, U8G2 *d2) : d1(d1), d2(d2) {}
 void UI::init(void) {
     initPage(d1);
     initPage(d2);
-    draw(0);
-    // draw(2);
+    enableExtInfo(0);
 }
 
 void UI::draw(unsigned ix) {
+    if (!extInfo) {
+        for (unsigned i=0; i<numParams; i++) {
+            p[i].prettyvalue = String(u8x8_u8toa(p[i].value, 3));
+        }
+    }
     drawPage(d1, p[0], p[1], p[2], p[2]);
     /* once we have 2 displays
     if (!(ix & 0x2)) {
@@ -52,6 +56,18 @@ void UI::setValue(unsigned ix, unsigned value) {
     draw(ix);
 }
 
+void UI::enableExtInfo(bool enable) {
+    extInfo = enable;
+    if (!extInfo) {
+        const String ixstr[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
+        for (unsigned i=0; i<numParams; i++) {
+            p[i].name = String("Param ") + ixstr[i];
+        }
+    }
+    draw(0);
+    // draw(2);
+}
+
 // private impl
 
 void UI::initPage(U8G2 *d) {
@@ -79,7 +95,6 @@ void UI::drawPage(U8G2 *d, UIParam p0, UIParam p1, UIParam p2, UIParam p3) {
     d->clearBuffer();
     drawColumn(d, 0, p0, p2);
     drawColumn(d, 64, p1, p3);
-    // TODO: see log()
     d->sendBuffer();  // update display
 }
 
