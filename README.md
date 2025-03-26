@@ -50,6 +50,18 @@ The following commands are implemented:
 
 The code uses [platformIO](https://platformio.org/). See [platformio.ini](platformio.ini) for the used libraries.
 
+# Debugging
+
+Since we're using usb-midi, we can't use it for serial logging. I am simply using a nodemcu esp8266 as serial2. On the nodemcu connect EN to GND to disaled the ESP. Then  connenct the nodemcu to the pico2 as follow:
+nodemcu esp8266 | raspberry pico2 
+:--------------:|:---------------:
+GND  | GND
+3.3V | 3.3V
+TX   | UART1 TX, pin 6 
+RX   | UART1 RX, pin 7
+
+Now plug the nodemcu to usb and open /dev/ttyUSB0 to see the serial log.
+
 # Links
 
 I've got inspiration from many other places. Let me mention a few similar

@@ -40,11 +40,6 @@ void UI::setValue(unsigned ix, unsigned value) {
     draw(ix);
 }
 
-void UI::log(String str) {
-    lastLog = str;
-    draw(0);
-}
-
 // private impl
 
 void UI::initPage(U8G2 *d) {
@@ -73,9 +68,6 @@ void UI::drawPage(U8G2 *d, UIParam p0, UIParam p1, UIParam p2, UIParam p3) {
     drawColumn(d, 0, p0, p2);
     drawColumn(d, 64, p1, p3);
     // TODO: see log()
-    if (lastLog.isEmpty()) {
-    d1->drawStr(0, 34, lastLog.c_str());
-    }
     d->sendBuffer();  // update display
 }
 
