@@ -1,7 +1,7 @@
 // debug logging
 
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef SRC_DEBUG_H
+#define SRC_DEBUG_H
 
 #include <Arduino.h>
 
@@ -18,4 +18,4 @@ private:
     SerialUART *serial; 
 };
 
-#endif // DEBUG_H
+#endif // SRC_DEBUG_H

@@ -1,7 +1,7 @@
 // display layout code
 
-#ifndef UI_H
-#define UI_H
+#ifndef SRC_UI_H
+#define SRC_UI_H
 
 #include <U8g2lib.h>
 
@@ -33,4 +33,4 @@ private:
     void drawColumn(U8G2 *d, unsigned x, UIParam p0, UIParam p1);
 };
 
-#endif // UI_H
+#endif // SRC_UI_H
