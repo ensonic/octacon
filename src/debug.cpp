@@ -1,3 +1,5 @@
+// debug logging
+
 #include <debug.h>
 
 Debug::Debug(SerialUART *serial) : serial(serial) {}

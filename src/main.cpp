@@ -1,11 +1,10 @@
 #include <Arduino.h>
-#include <Adafruit_TinyUSB.h>
 #include <EncoderTool.h>
-#include <MIDI.h>
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
 
 #include <debug.h>
+#include <midi_io.h>
 #include <ui.h>
 
 using namespace EncoderTool;
@@ -53,12 +52,7 @@ U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /
 UI ui(&oled1);
 
 // USB MIDI object
-Adafruit_USBD_MIDI usbMidi;
-MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
-// TODO: maybe add daw-connect/disconnect cmd,
-// daw-disconnect: reset names/values:  ui then shows cc-names on screen and midi values
-enum class SysExCmd : byte { ParamName, PrettyValue };
-const uint8_t ControllerBase = 9;
+MidiIO mio;
 
 // Debugging (disable by passing a nullptr)
 Debug dbg(&Serial2);
@@ -70,70 +64,12 @@ Debug dbg(&Serial2);
 static void encodersCB(unsigned int enc,int value,int delta) {
     dbg.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
     ui.setValue(enc, value);
-    MIDI.sendControlChange(ControllerBase + enc, value, 1);
+    mio.sendCC(enc, value);
 }
 
 static void buttonCB(int enc, int state) {
     dbg.printf("Button:[%u]; State= %d\n", enc, state);
-    MIDI.sendControlChange(ControllerBase + numParams + enc, state*64, 1);
-}
-
-static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
-    auto enc = number - ControllerBase;
-    encoders[enc].setValue(value);
-    ui.setValue(enc, value);
-}
-
-static void midiSysExParamName(byte *data, unsigned size) {
-    // param-ix, length, data
-    if (size < 2) {
-        dbg.println("sysexcmd too short");
-        return;
-    }
-    if (data[0] >= numParams) {
-        dbg.println("sysexcmd bad param-ix");
-        return;
-    }
-    ui.setName(data[0], (char *)(&data[2]), data[1]);
-}
-
-static void midiSysExPrettyValue(byte *data, unsigned size) {
-    // param-ix, length, data
-    if (size < 2) {
-        dbg.println("sysexcmd too short");
-        return;
-    }
-    if (data[0] >= numParams) {
-        dbg.println("sysexcmd bad param-ix");
-        return;
-    }
-     ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
-}
-
-static void midiSysExCB(byte * data, unsigned size) {
-    // min size is 'F0 7D` + cmd + 'F7'
-    if (size < 4) {
-        dbg.println("sysex too short");
-        return;
-    }
-    // bad sysex
-    if (data[0] != 0xF0 || data[1] != 0x7D || data[size-1] != 0xF7) {
-        dbg.println("bad sysex");
-        return;
-    }
-    auto cmd = SysExCmd(data[2]);
-    data=&data[3]; size -=4;
-    switch(cmd) {
-        case SysExCmd::ParamName:
-        midiSysExParamName(data, size);
-        break;
-        case SysExCmd::PrettyValue:
-        midiSysExPrettyValue(data, size);
-        break;
-        default:
-        dbg.println("sysex: unknown cmd");
-        break;
-    }
+    mio.sendCC(numParams + enc, state*64);
 }
 
 void setup() {
@@ -158,25 +94,16 @@ void setup() {
     }
     leds.Show();
 
-    ui.init();
+    mio.init();
 
-    TinyUSBDevice.setManufacturerDescriptor("Ensonic");
-    TinyUSBDevice.setProductDescriptor("Octacon");
-    if (!usbMidi.begin()) {
-        dbg.println("Starting usbMidi failed");
-    }
-    MIDI.begin(MIDI_CHANNEL_OMNI);
-    MIDI.turnThruOff();
-    MIDI.setHandleControlChange(midiControlChangeCB);
-    MIDI.setHandleSystemExclusive(midiSysExCB);
-    while( !TinyUSBDevice.mounted() ) delay(1);
+    ui.init();
 
     dbg.println("Setup done");
 }
 
 void loop() {
     encoders.tick();
-    MIDI.read();
+    mio.tick();
 
     static unsigned t0 = 0;
     static bool blink = false;

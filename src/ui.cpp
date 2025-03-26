@@ -1,6 +1,9 @@
 // display layout code
 
+#include <debug.h>
 #include <ui.h>
+
+extern Debug dbg;
 
 UI::UI(U8G2 *d1, U8G2 *d2) : d1(d1), d2(d2) {}
 
@@ -23,19 +26,28 @@ void UI::draw(unsigned ix) {
 }
 
 void UI::setName(unsigned ix, char *str, unsigned len) {
-    if (ix >= numParams) return;
+    if (ix >= numParams) {
+        dbg.printf("ix=%u > %u\n", ix, numParams);
+        return;
+    }
     p[ix].name = String(str, len);
     draw(ix);
 }
 
 void UI::setPrettyValue(unsigned ix, char *str, unsigned len) {
-    if (ix >= numParams) return;
+    if (ix >= numParams) {
+        dbg.printf("ix=%u > %u\n", ix, numParams);
+        return;
+    }
     p[ix].prettyvalue = String(str, len);
     draw(ix);
 }
 
 void UI::setValue(unsigned ix, unsigned value) {
-    if (ix >= numParams) return;
+    if (ix >= numParams) {
+        dbg.printf("ix=%u > %u\n", ix, numParams);
+        return;
+    }
     p[ix].value = value;
     draw(ix);
 }
