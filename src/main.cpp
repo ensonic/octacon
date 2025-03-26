@@ -34,14 +34,14 @@ const uint8_t LedPin = 1;
 NeoPixelBus<NeoGrbFeature, Rp2040x4Pio1Ws2812xMethod> leds(LedCount, LedPin); // note: modern WS2812 with letter like WS2812b
 // Bitwig colors
 HslColor bitwigScheme[] = {
-  HslColor(RgbColor(0xf7, 0x1b, 0x3e)), // red
-  HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
-  HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
-  HslColor(RgbColor(0x5b, 0xc5, 0x15)), // lime
-  HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
-  HslColor(RgbColor(0x5c, 0xa8, 0xee)), // light blue
-  HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
-  HslColor(RgbColor(0xff, 0x54, 0xb0)), // pink
+    HslColor(RgbColor(0xf7, 0x1b, 0x3e)), // red
+    HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
+    HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
+    HslColor(RgbColor(0x5b, 0xc5, 0x15)), // lime
+    HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
+    HslColor(RgbColor(0x5c, 0xa8, 0xee)), // light blue
+    HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
+    HslColor(RgbColor(0xff, 0x54, 0xb0)), // pink
 };
 
 // OLEDs
@@ -68,121 +68,121 @@ Debug dbg(&Serial2);
 // Callbacks
 
 static void encodersCB(unsigned int enc,int value,int delta) {
-  dbg.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
-  ui.setValue(enc, value);
-  MIDI.sendControlChange(ControllerBase + enc, value, 1);
+    dbg.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
+    ui.setValue(enc, value);
+    MIDI.sendControlChange(ControllerBase + enc, value, 1);
 }
 
 static void buttonCB(int enc, int state) {
-  dbg.printf("Button:[%u]; State= %d\n", enc, state);
-  MIDI.sendControlChange(ControllerBase + numParams + enc, state*64, 1);
+    dbg.printf("Button:[%u]; State= %d\n", enc, state);
+    MIDI.sendControlChange(ControllerBase + numParams + enc, state*64, 1);
 }
 
 static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
-  auto enc = number - ControllerBase;
-  encoders[enc].setValue(value);
-  ui.setValue(enc, value);
+    auto enc = number - ControllerBase;
+    encoders[enc].setValue(value);
+    ui.setValue(enc, value);
 }
 
 static void midiSysExParamName(byte *data, unsigned size) {
-  // param-ix, length, data
-  if (size < 2) {
-    dbg.println("sysexcmd too short");
-    return;
-  }
-  if (data[0] >= numParams) {
-    dbg.println("sysexcmd bad param-ix");
-    return;
-  }
-  ui.setName(data[0], (char *)(&data[2]), data[1]);
+    // param-ix, length, data
+    if (size < 2) {
+        dbg.println("sysexcmd too short");
+        return;
+    }
+    if (data[0] >= numParams) {
+        dbg.println("sysexcmd bad param-ix");
+        return;
+    }
+    ui.setName(data[0], (char *)(&data[2]), data[1]);
 }
 
 static void midiSysExPrettyValue(byte *data, unsigned size) {
-  // param-ix, length, data
-  if (size < 2) {
-    dbg.println("sysexcmd too short");
-    return;
-  }
-  if (data[0] >= numParams) {
-    dbg.println("sysexcmd bad param-ix");
-    return;
-  }
-  ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
+    // param-ix, length, data
+    if (size < 2) {
+        dbg.println("sysexcmd too short");
+        return;
+    }
+    if (data[0] >= numParams) {
+        dbg.println("sysexcmd bad param-ix");
+        return;
+    }
+     ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {
-  // min size is 'F0 7D` + cmd + 'F7'
-  if (size < 4) {
-    dbg.println("sysex too short");
-    return;
-  }
-  // bad sysex
-  if (data[0] != 0xF0 || data[1] != 0x7D || data[size-1] != 0xF7) {
-    dbg.println("bad sysex");
-    return;
-  }
-  auto cmd = SysExCmd(data[2]);
-  data=&data[3]; size -=4;
-  switch(cmd) {
-    case SysExCmd::ParamName:
-      midiSysExParamName(data, size);
-      break;
-    case SysExCmd::PrettyValue:
-      midiSysExPrettyValue(data, size);
-      break;
-    default:
-      dbg.println("sysex: unknown cmd");
-      break;
-  }
+    // min size is 'F0 7D` + cmd + 'F7'
+    if (size < 4) {
+        dbg.println("sysex too short");
+        return;
+    }
+    // bad sysex
+    if (data[0] != 0xF0 || data[1] != 0x7D || data[size-1] != 0xF7) {
+        dbg.println("bad sysex");
+        return;
+    }
+    auto cmd = SysExCmd(data[2]);
+    data=&data[3]; size -=4;
+    switch(cmd) {
+        case SysExCmd::ParamName:
+        midiSysExParamName(data, size);
+        break;
+        case SysExCmd::PrettyValue:
+        midiSysExPrettyValue(data, size);
+        break;
+        default:
+        dbg.println("sysex: unknown cmd");
+        break;
+    }
 }
 
 void setup() {
-  dbg.init(5,4);
-  dbg.println("Setup start");
+    dbg.init(5,4);
+    dbg.println("Setup start");
 
-  pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);
 
-  for(unsigned i=0; i<EncoderCount; i++) {
-    encoders[i].setLimits(0,127);
-    encoders[i].setValue(50);
-    encoders[i].attachButtonCallback([i](int state) { buttonCB(i, 1-state); }); // invert state, as we do input_pullup
-  }
-  encoders.begin();
-  encoders.attachCallback(encodersCB);
+    for(unsigned i=0; i<EncoderCount; i++) {
+        encoders[i].setLimits(0,127);
+        encoders[i].setValue(50);
+        encoders[i].attachButtonCallback([i](int state) { buttonCB(i, 1-state); }); // invert state, as we do input_pullup
+    }
+    encoders.begin();
+    encoders.attachCallback(encodersCB);
 
-  leds.Begin();
-  for (uint16_t i=0; i<LedCount; i++) {
-    auto hslc = bitwigScheme[i];
-    hslc.L = 0.3;  // Brightness from 0.0 to 1.0
-    leds.SetPixelColor(i, hslc);
-  }
-  leds.Show();
+    leds.Begin();
+    for (uint16_t i=0; i<LedCount; i++) {
+        auto hslc = bitwigScheme[i];
+        hslc.L = 0.3;  // Brightness from 0.0 to 1.0
+        leds.SetPixelColor(i, hslc);
+    }
+    leds.Show();
 
-  ui.init();
+    ui.init();
 
-  TinyUSBDevice.setManufacturerDescriptor("Ensonic");
-  TinyUSBDevice.setProductDescriptor("Octacon");
-  if (!usbMidi.begin()) {
-    dbg.println("Starting usbMidi failed");
-  }
-  MIDI.begin(MIDI_CHANNEL_OMNI);
-  MIDI.turnThruOff();
-  MIDI.setHandleControlChange(midiControlChangeCB);
-  MIDI.setHandleSystemExclusive(midiSysExCB);
-  while( !TinyUSBDevice.mounted() ) delay(1);
+    TinyUSBDevice.setManufacturerDescriptor("Ensonic");
+    TinyUSBDevice.setProductDescriptor("Octacon");
+    if (!usbMidi.begin()) {
+        dbg.println("Starting usbMidi failed");
+    }
+    MIDI.begin(MIDI_CHANNEL_OMNI);
+    MIDI.turnThruOff();
+    MIDI.setHandleControlChange(midiControlChangeCB);
+    MIDI.setHandleSystemExclusive(midiSysExCB);
+    while( !TinyUSBDevice.mounted() ) delay(1);
 
-  dbg.println("Setup done");
+    dbg.println("Setup done");
 }
 
 void loop() {
-  encoders.tick();
-  MIDI.read();
+    encoders.tick();
+    MIDI.read();
 
-  static unsigned t0 = 0;
-  static bool blink = false;
-  if (millis() - t0 > 500)  {
-    digitalWrite(LED_BUILTIN, blink);
-    blink = !blink;
-    t0 = millis();
-  }
+    static unsigned t0 = 0;
+    static bool blink = false;
+    if (millis() - t0 > 500)  {
+        digitalWrite(LED_BUILTIN, blink);
+        blink = !blink;
+        t0 = millis();
+    }
 }
