@@ -5,6 +5,8 @@
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
 
+#include <ui.h>
+
 using namespace EncoderTool;
 
 // Conditionals
@@ -48,24 +50,21 @@ HslColor bitwigScheme[] = {
 // OLEDs
 // GPIO18 : SCK Serial Clock)
 // GPIO19 : SDA (Master Out, Salve In = Serial Data Output)
-// using display = U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI;
-using display = U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI;
-display oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-//display oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
-String lastLog="";
+// TODO: change to U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI;
+U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
+//U8G2_SSD1309_128X64_NONAME2_F_2ND_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
+UI ui(&oled1);
 
 // USB MIDI object
 Adafruit_USBD_MIDI usbMidi;
 MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbMidi, MIDI);
+// TODO: maybe add daw-connect/disconnect cmd,
+// daw-disconnect: reset names/values:  ui then shows cc-names on screen and midi values
 enum class SysExCmd : byte { ParamName, PrettyValue };
 const uint8_t ControllerBase = 9;
-const unsigned maxNameLen = 14;
-char paramNames[numParams][maxNameLen+1] = { 0, };
-char prettyValues[numParams][maxNameLen+1] = { 0, };
 
 // Function protos
 
-void drawUI(unsigned ix);
 void log(String str);
 
 // Callbacks
@@ -74,7 +73,7 @@ static void encodersCB(unsigned int enc,int value,int delta) {
 #ifdef USE_LOGING
   Serial.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
 #endif
-  drawUI(enc);
+  ui.setValue(enc, value);
 #ifdef USE_MIDI
   MIDI.sendControlChange(ControllerBase + enc, value, 1);
 #endif
@@ -92,10 +91,10 @@ static void buttonCB(int enc, int state) {
 static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
   auto enc = number - ControllerBase;
   encoders[enc].setValue(value);
-  drawUI(enc);
+  ui.setValue(enc, value);
 }
 
-static void midiSysExTextValue(byte *data, unsigned size, char text[numParams][maxNameLen+1]) {
+static void midiSysExParamName(byte *data, unsigned size) {
   // param-ix, length, data
   if (size < 2) {
     log("sysexcmd too short");
@@ -105,11 +104,20 @@ static void midiSysExTextValue(byte *data, unsigned size, char text[numParams][m
     log("sysexcmd bad param-ix");
     return;
   }
-  unsigned ix = data[0]; 
-  unsigned len = (data[1] < maxNameLen) ? data[1] : maxNameLen;
-  strncpy(text[ix], (char *)(&data[2]), len);
-  text[ix][len] = '\0';
-  drawUI(ix);
+  ui.setName(data[0], (char *)(&data[2]), data[1]);
+}
+
+static void midiSysExPrettyValue(byte *data, unsigned size) {
+  // param-ix, length, data
+  if (size < 2) {
+    log("sysexcmd too short");
+    return;
+  }
+  if (data[0] >= numParams) {
+    log("sysexcmd bad param-ix");
+    return;
+  }
+  ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {
@@ -127,10 +135,10 @@ static void midiSysExCB(byte * data, unsigned size) {
   data=&data[3]; size -=4;
   switch(cmd) {
     case SysExCmd::ParamName:
-      midiSysExTextValue(data, size, paramNames);
+      midiSysExParamName(data, size);
       break;
     case SysExCmd::PrettyValue:
-      midiSysExTextValue(data, size, prettyValues);
+      midiSysExPrettyValue(data, size);
       break;
     default:
       log("sysex: unknown cmd");
@@ -138,61 +146,12 @@ static void midiSysExCB(byte * data, unsigned size) {
   }
 }
 
-void drawUIPage(display o, unsigned ix0, unsigned ix1, unsigned ix2, unsigned ix3) {
-  // TODO: if we update from the callback, we can use updateDisplayArea() instead of sendBuffer()
-  // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
-  // TODO: if we want to support longer text, maybe clip? or scroll, smaller fonts?
-  auto v0 = encoders[ix0].getValue();
-  auto v1 = encoders[ix1].getValue();
-  auto v2 = encoders[ix2].getValue();
-  auto v3 = encoders[ix3].getValue();
-  o.clearBuffer();
-  o.setDrawColor(1);
-  // left column
-  o.drawFrame(0, 0, 63, 15);
-  o.drawBox(0, 1, v0/2, 14);
-  o.drawStr(0, 26, paramNames[ix0]);  // 26 = 16 + 8 + 2
-  o.drawStr(0, 45, paramNames[ix2]);
-  o.drawFrame(0, 48, 63, 15);
-  o.drawBox(0, 49, v2/2, 14);
-  // right column
-  o.drawFrame(64, 0, 63, 15);
-  o.drawBox(64, 1, v1/2, 14);
-  o.drawStr(64, 26, paramNames[ix1]);  // 26 = 16 + 8 + 2
-  o.drawStr(64, 45, paramNames[ix3]);
-  o.drawFrame(64, 48, 63, 15);
-  o.drawBox(64, 49, v3/2, 14);
-  // values
-  o.setDrawColor(2);
-  o.drawStr(1, 2+8, prettyValues[ix0]);
-  o.drawStr(1,50+8, prettyValues[ix2]);
-  o.drawStr(65, 2+8, prettyValues[ix1]);
-  o.drawStr(65,50+8, prettyValues[ix3]);
-  // TODO: see log()
-  if (lastLog.isEmpty()) {
-    oled1.drawStr(0, 34, lastLog.c_str());
-  }
-  o.sendBuffer();  // update display
-}
-
-void drawUI(unsigned ix) {
-  drawUIPage(oled1, 0, 1, 2, 2);
-  /* once we have 2 displays
-  if (!(ix & 0x2)) {
-    drawUIPage(oled1, 0, 1, 4, 5);
-  } else {
-    drawUIPage(oled2, 2, 3, 6, 7);
-  }
-  */
-}
-
 // TODO: figure a better way (e.g. 2nd usb serial)
 void log(String str) {
 #ifdef USE_LOGING
   Serial.println(str);
 #else
-  lastLog = str;
-  drawUI(0);
+  ui.log(str);
 #endif
 }
 
@@ -221,21 +180,7 @@ void setup() {
   }
   leds.Show();
 
-  oled1.begin();
-  oled1.setContrast(200);  //  Brightness setting from 0 to 255
-  oled1.setFont(
-    // 6 pixel
-    // u8g2_font_spleen5x8_mf // same width as: u8g2_font_helvR08_tf
-    // 7 pixel
-    u8g2_font_NokiaSmallPlain_tf
-    // 8 pixel
-    // u8g2_font_helvR08_tf // not monospaced, can fit more text
-    // u8g2_font_spleen6x12_mf // m=monospaced,f= full charset
-  );
-  oled1.setFontMode(1); // make transparent (no bg)
-  drawUIPage(oled1, 0, 1, 2, 2);
-  //drawUIPage(oled1, 0, 1, 4, 5);
-  //drawUIPage(oled2, 2, 3, 6, 7);
+  ui.init();
 
 #ifdef USE_MIDI
   TinyUSBDevice.setManufacturerDescriptor("Ensonic");
