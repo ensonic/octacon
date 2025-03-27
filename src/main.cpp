@@ -15,7 +15,9 @@ const unsigned numParams = 8;
 
 // Encoders
 // TODO: change to numParams
-// TODO: if we switch to analog encoders, we need to change SigA/B to 26/27
+// TODO: if we switch to analog encoders:
+// - change SigA/B from 14/15 to 26/27
+// - change GND for Multiplexers to use ADC GND right next to it
 constexpr unsigned EncoderCount = 3;  // number of attached encoders
 constexpr unsigned EncMux0 = 11;       // address pin 0
 constexpr unsigned EncMux1 = 12;       // ...
