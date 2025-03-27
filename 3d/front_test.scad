@@ -4,6 +4,7 @@
 // f3d front_test.stl
 
 // panel size
+pd=2.0;
 pw=30.0;
 pw2=pw/2.0;
 pw4=pw/4.0;
@@ -12,10 +13,10 @@ ph2=ph/2.0;
 
 dw4=pw4; // simplify to keep it centered
 
-// encoder shaft
+// encoder
 ew=12;
 eh=12;
-er=3.7;
+er=3.7;  // shaft
 em=0;
 
 // leds
@@ -36,15 +37,18 @@ lshx=lsh+0.2;
 lsg=3;
 lsg2=lsg/2.0;
 
-// screw holes
-m3r=1.62;
+// M3 screw holes
+m3r=1.5;
+m3rx=1.62; // extra size to cover 3d print thickness
+// on the corners put screw-holes with 1mm offset
+m3sd=1+m3r;
 
 // make it smooth
 $fn=50;
 
 // main body
 difference() {
-    cube([pw,ph,2],center=true);
+    cube([pw,ph,pd],center=true);
 
     // encoders
     // top row
@@ -58,8 +62,8 @@ difference() {
         translate([-(pw4-dw4),0,0]) { cube([lw,lh,5], center=true); }
     }
 
-    // M3 holes
-    translate([-(pw2-3),-(ph2-3),0]) { cylinder(h=5,r=m3r, center=true); }
+    // M3 holes (1 mm off the side)
+    translate([-(pw2-m3sd),-(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
    
 }
 // encoder supports

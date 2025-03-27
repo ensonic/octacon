@@ -4,10 +4,12 @@
 // f3d front.stl
 
 // panel size
-pw=150.0;
+// - add thickness to w/h so that front-plate covers the sides
+pd=2.0;
+pw=150.0 + (2 * pd);
 pw2=pw/2.0;
 pw4=pw/4.0;
-ph=100.0;
+ph=100.0 + (2 * pd);
 ph2=ph/2.0;
 
 // display
@@ -17,10 +19,10 @@ dw4=dw/4.0;
 dh=27.78;
 dh2=dh/2.0;
 
-// encoder shaft
+// encoder
 ew=12;
 eh=12;
-er=3.7;
+er=3.7;  // shaft
 em=31;   // space from 25...37
 
 // leds
@@ -41,15 +43,18 @@ lshx=lsh+0.2;
 lsg=3;
 lsg2=lsg/2.0;
 
-// screw holes
-m3r=1.62;
+// M3 screw holes
+m3r=1.5;
+m3rx=1.62; // extra size to cover 3d print thickness
+// on the corners put screw-holes with 1mm offset
+m3sd=pd+1+m3r;
 
 // make it smooth
 $fn=50;
 
 // main body
 difference() {
-    cube([pw,ph,2],center=true);
+    cube([pw,ph,pd],center=true);
 
     // displays
     // need ~10 mm space towards the encoder-housing
@@ -90,11 +95,10 @@ difference() {
     }
 
     // M3 holes
-    // TODO: check offset on protoboard
-    translate([-(pw2-3),-(ph2-3),0]) { cylinder(h=5,r=m3r, center=true); }
-    translate([+(pw2-3),-(ph2-3),0]) { cylinder(h=5,r=m3r, center=true); }
-    translate([-(pw2-3),+(ph2-3),0]) { cylinder(h=5,r=m3r, center=true); }
-    translate([+(pw2-3),+(ph2-3),0]) { cylinder(h=5,r=m3r, center=true); }
+    translate([-(pw2-m3sd),-(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
+    translate([+(pw2-m3sd),-(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
+    translate([-(pw2-m3sd),+(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
+    translate([+(pw2-m3sd),+(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
    
 }
 // encoder supports
