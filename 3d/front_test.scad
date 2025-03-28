@@ -14,10 +14,18 @@ ph2=ph/2.0;
 dw4=pw4; // simplify to keep it centered
 
 // encoder
-ew=12;
-eh=12;
+// EC11 digital encoders
+//ew=12;
+//ewo=0;
+//eh=12;
+// Alpha dual wiper potentiometers
+ew1=9.7;
+ew2=6.7;
+ew=ew1+ew2;
+ewo=ew1-(ew/2.0); // shaft offset to center
+eh=14.4;
 er=3.7;  // shaft
-em=0;
+em=-1.2; // eh/2 offset from lm
 
 // leds
 lw=14;
@@ -44,7 +52,7 @@ m3rx=1.62; // extra size to cover 3d print thickness
 m3sd=1+m3r;
 
 // make it smooth
-$fn=50;
+$fn=25;
 
 // main body
 difference() {
@@ -66,10 +74,11 @@ difference() {
     translate([-(pw2-m3sd),-(ph2-m3sd),0]) { cylinder(h=5,r=m3rx, center=true); }
    
 }
-// encoder supports
+
+// encoder  supports
 module encoder_support() {
     difference() {
-        cube([ew+sw2,(eh-0.1),esh], center=true);
+        cube([ew+sw2,(eh-0.4),esh], center=true);
         cube([ew,eh,eshx], center=true);
     }
 }
@@ -77,9 +86,10 @@ module encoder_support() {
 translate([0,0,esh2]) {
     // top row
     translate([0,em,0]) { 
-        translate([-(pw4-dw4),0,0]) { encoder_support(); }
+        translate([ewo-(pw4-dw4),0,0]) { encoder_support(); }
     }
 }
+
 // led shielding
 module led_shield() {
     difference() {

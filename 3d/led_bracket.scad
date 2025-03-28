@@ -36,7 +36,7 @@ bh=(lh+lsg)+sw;
 cr=3.5;
 
 // make it smooth
-$fn=50;
+$fn=25;
 
 // main body
 difference() {
