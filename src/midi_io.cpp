@@ -1,23 +1,22 @@
 // midi handling code
 
-#include <EncoderTool.h>
-
 #include <debug.h>
+#include <knobs.h>
 #include <midi_io.h>
 #include <ui.h>
 
 extern Debug dbg;
 extern UI ui;
-extern EncoderTool::EncPlex4051 encoders;
+extern Knobs knobs;
 
 Adafruit_USBD_MIDI usbMidi;
 
 //midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI>> MIDI;
 
 static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
-    auto enc = number - ControllerBase;
-    encoders[enc].setValue(value);
-    ui.setValue(enc, value);
+    auto ix = number - ControllerBase;
+    knobs.setValue(ix, value);
+    ui.setValue(ix, value);
 }
 
 static void midiSysExParamName(byte *data, unsigned size) {

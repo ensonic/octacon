@@ -1,31 +1,24 @@
 #include <Arduino.h>
-#include <EncoderTool.h>
+#include <Mux.h>
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
 
 #include <debug.h>
+#include <knobs.h>
 #include <midi_io.h>
 #include <ui.h>
-
-using namespace EncoderTool;
 
 // Hardware defines
 
 const unsigned numParams = 8;
 
-// Encoders
-// TODO: change to numParams
-// TODO: if we switch to analog encoders:
-// - change SigA/B from 14/15 to 26/27
-// - change GND for Multiplexers to use ADC GND right next to it
-constexpr unsigned EncoderCount = 3;  // number of attached encoders
-constexpr unsigned EncMux0 = 11;       // address pin 0
-constexpr unsigned EncMux1 = 12;       // ...
-constexpr unsigned EncMux2 = 13;       // address pin 2
-constexpr unsigned EncSigA = 14;       // output pin SIG of multiplexer A
-constexpr unsigned EncSigB = 15;       // output pin SIG of multiplexer B
-constexpr unsigned EncSigBtn = 10;     // output pin SIG of multiplexer C
-EncPlex4051 encoders(EncoderCount, EncMux0, EncMux1, EncMux2, EncSigA, EncSigB, EncSigBtn);
+// Knobs
+using namespace admux;
+Pinset addr(D11, D12, D13);
+Mux vala(Pin(A0, INPUT, PinType::Analog), addr);
+Mux valb(Pin(A1, INPUT, PinType::Analog), addr);
+Mux btn(Pin(D10, INPUT_PULLUP, PinType::Digital), addr);
+Knobs knobs(&vala, &valb, &btn);
 
 // LEDs
 const uint16_t LedCount = numParams;
@@ -62,15 +55,15 @@ Debug dbg(&Serial2);
 
 // Callbacks
 
-static void encodersCB(unsigned int enc,int value,int delta) {
-    dbg.printf("Encoder[%u]: Value = %d | Delta = %d\n",enc,value,delta);
-    ui.setValue(enc, value);
-    mio.sendCC(enc, value);
+static void valueCB(unsigned int ix,int value,int delta) {
+    dbg.printf("Knob[%u]: Value = %d | Delta = %d\n", ix, value, delta);
+    ui.setValue(ix, value);
+    mio.sendCC(ix, value);
 }
 
-static void buttonCB(int enc, int state) {
-    dbg.printf("Button:[%u]; State= %d\n", enc, state);
-    mio.sendCC(numParams + enc, state*64);
+static void buttonCB(unsigned int ix, int state) {
+    dbg.printf("Button:[%u]; State= %d\n", ix, state);
+    mio.sendCC(numParams + ix, state*64);
 }
 
 void setup() {
@@ -82,13 +75,11 @@ void setup() {
 
     ui.init();
 
-    for(unsigned i=0; i<EncoderCount; i++) {
-        encoders[i].setLimits(0,127);
-        encoders[i].setValue(50);
-        encoders[i].attachButtonCallback([i](int state) { buttonCB(i, 1-state); }); // invert state, as we do input_pullup
-    }
-    encoders.begin();
-    encoders.attachCallback(encodersCB);
+    knobs.setLimits(0,127);
+    knobs.setValue(50);
+    knobs.attachButtonCallback(buttonCB);
+    knobs.attachValueCallback(valueCB);
+    knobs.begin();
 
     leds.Begin();
     for (uint16_t i=0; i<LedCount; i++) {
@@ -106,7 +97,7 @@ void setup() {
 }
 
 void loop() {
-    encoders.tick();
+    knobs.tick();
     mio.tick();
 
     static unsigned t0 = 0;
@@ -116,4 +107,6 @@ void loop() {
         blink = !blink;
         t0 = millis();
     }
+
+    delay(50);
 }
