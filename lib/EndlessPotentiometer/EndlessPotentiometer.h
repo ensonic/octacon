@@ -59,7 +59,9 @@ public:
 
 #ifdef DEBUG
   // Dump internal state to stdout
-  void dump(const char *msg); 
+  void dump_pretty(const char *msg);
+  void dump_csv_hdr(void);
+  void dump_csv(float ang);
 #endif
 
 private:

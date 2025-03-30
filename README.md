@@ -57,6 +57,11 @@ The following commands are implemented:
 
 The code uses [platformIO](https://platformio.org/). See [platformio.ini](platformio.ini) for the used libraries.
 
+```
+alias pio=$HOME/.platformio/penv/bin/pio
+pio test
+```
+
 # Debugging
 
 Since we're using usb-midi, we can't use it for serial logging. I am simply using a nodemcu esp8266 as serial2. On the nodemcu connect EN to GND to disaled the ESP. Then  connenct the nodemcu to the pico2 as follow:

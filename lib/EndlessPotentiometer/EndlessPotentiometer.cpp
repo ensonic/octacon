@@ -123,7 +123,7 @@ int EndlessPotentiometer::getValue(int value) {
 
 #include <stdio.h>
 
-void EndlessPotentiometer::dump(const char *msg) {
+void EndlessPotentiometer::dump_pretty(const char *msg) {
   char va=' ', vb=' ';
   if ((valueA < adc08Value) && (valueA > adc02Value)) {
     va='*';
@@ -135,5 +135,17 @@ void EndlessPotentiometer::dump(const char *msg) {
   printf("A%c: cur=%4d, pre=%4d, dif=%+5d, dir=%+2d\n", va, valueA, previousValueA, (valueA - previousValueA), dirA);
   printf("B%c: cur=%4d, pre=%4d, dif=%+5d, dir=%+2d\n", vb, valueB, previousValueB, (valueB - previousValueB), dirB);
   printf("range=%4d..%4d, sensitivity=%f\n", minValue, maxValue, sensitivity);
+}
+
+void EndlessPotentiometer::dump_csv_hdr(void) {
+  printf("v,valA,dirA,valB,dirB,value,valueChanged,direction,previousDirection\n");
+}
+
+void EndlessPotentiometer::dump_csv(float ang) {
+  printf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+    (int)ang, 
+    valueA, dirA, 
+    valueB, dirB, 
+    value, valueChanged, direction, previousDirection);
 }
 #endif
