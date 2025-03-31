@@ -4,12 +4,13 @@
 // f3d led_bracket.stl
 
 // panel size
-pw=150.0;
+pd=2.0;
+pw=150.0 + (2 * pd);
 pw2=pw/2.0;
 pw4=pw/4.0;
 
 // display
-dw=55.4;
+dw=62.5;
 dw2=dw/2.0;
 dw4=dw/4.0;
 
