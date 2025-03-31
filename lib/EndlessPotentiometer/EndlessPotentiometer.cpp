@@ -7,6 +7,9 @@ juanlittledevel and the original author to clear things up.
 
 #include <EndlessPotentiometer.h>
 #include <math.h> // for abs()
+#ifdef DEBUG
+#include <stdio.h>
+#endif
 
 EndlessPotentiometer::EndlessPotentiometer() {
   valueA = 0;
@@ -16,6 +19,13 @@ EndlessPotentiometer::EndlessPotentiometer() {
 }
 
 void EndlessPotentiometer::updateValues(int valueA, int valueB) {
+#ifdef DEBUG
+  // both values are at most 90° apart (run test with -v)
+  if (abs(valueA - valueB) > (MAX_POT_VALUE/2)) {
+    printf("BAD INPUT: %d, %d : %d\n", valueA, valueB, abs(valueA - valueB));
+  }
+#endif
+
   previousValueA = this->valueA;
   previousValueB = this->valueB;
 
@@ -39,7 +49,7 @@ void EndlessPotentiometer::updateValues(int valueA, int valueB) {
     dirB = NOT_MOVING;
   }
 
-  // Now evaluate the actual direction of the pot.
+  // Now evaluate the actual direction of the pot for each of the 4 quoadrants.
   if (dirA == DOWN && dirB == DOWN) {
     if (valueA > valueB) {
       direction = CLOCKWISE;
@@ -54,7 +64,7 @@ void EndlessPotentiometer::updateValues(int valueA, int valueB) {
     }
   } else if (dirA == UP && dirB == DOWN) {
     if ((valueA > adcHalfValue) || (valueB > adcHalfValue)) {
-      // safety net - TODO: explain
+      // safety net for
       if (previousValueA < adcHalfValue && (previousValueB < safetyNet || previousValueB > (adcHalfValue - safetyNet))) {
         direction = previousDirection;
       } else {
@@ -65,7 +75,7 @@ void EndlessPotentiometer::updateValues(int valueA, int valueB) {
     }
   } else if (dirA == DOWN && dirB == UP) {
     if ((valueA < adcHalfValue) || (valueB < adcHalfValue)) {
-      // safety net - TODO: explain
+      // safety net
       if (previousValueA > adcHalfValue && (previousValueB < safetyNet ||  previousValueB > (adcHalfValue - safetyNet))) {
         direction = previousDirection;
       } else {
@@ -110,6 +120,7 @@ int EndlessPotentiometer::getValue(int value) {
       value -= valueChanged;
     }
 
+    // clip to range, TODO: maybe also support wrapping
     if (value < minValue) {
       value = minValue;
     } else if (value > maxValue) {
@@ -120,8 +131,6 @@ int EndlessPotentiometer::getValue(int value) {
 }
 
 #ifdef DEBUG
-
-#include <stdio.h>
 
 void EndlessPotentiometer::dump_pretty(const char *msg) {
   char va=' ', vb=' ';
@@ -138,14 +147,15 @@ void EndlessPotentiometer::dump_pretty(const char *msg) {
 }
 
 void EndlessPotentiometer::dump_csv_hdr(void) {
-  printf("v,valA,dirA,valB,dirB,value,valueChanged,direction,previousDirection\n");
+  printf("v,valA,dirA,valB,dirB,value,change,direction\n");
 }
 
 void EndlessPotentiometer::dump_csv(float ang) {
-  printf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+  printf("%d,%d,%d,%d,%d,%d,%d,%d\n", 
     (int)ang, 
     valueA, dirA, 
     valueB, dirB, 
-    value, valueChanged, direction, previousDirection);
+    value, valueChanged, 
+    direction);
 }
 #endif

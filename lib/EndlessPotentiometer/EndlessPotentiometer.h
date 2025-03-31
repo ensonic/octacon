@@ -27,8 +27,9 @@ public:
   // Threshold is the amount of change that must happen in order to be
   // considered as a change in value. Ideally this should be set low but just
   // large enough to catch jitter from the pot. 3 was a good value in my tests.
-  // This is specifies in teh source range (raw adc value).
+  // This is specifies in the source range (raw adc value).
   int threshold = 3;
+  // Don't change direction if we just crossed the zero point on the pot
   int safetyNet = 400;
 
   // Sensitivity refers to how quickly values change when the knob is turned.
@@ -36,9 +37,9 @@ public:
   // more times until to reach the max or min values. If you are working with
   // 127 values, a larger number may be desired. However, if you are working
   // with larger values you will want to set this lower.
-  // TODO: suggest how to calculate from MAX_POT_VALUE and maxValue to get a 
-  // min->max value change in one full rotation
-  float sensitivity = (1 << 5);
+  // Use 2.0*((float)MAX_POT_VALUE/(float)maxValue) as one knob rotation (360°) will go from 
+  // 0 to MAX_POT_VALUE and back
+  float sensitivity = 8;
 
   // Sets the max value range. That the internal max value can be set to. The
   // default is 127, but this can be scaled ot anything you want.

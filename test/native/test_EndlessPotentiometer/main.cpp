@@ -1,4 +1,6 @@
 #include <unity.h>
+#include <math.h>
+
 #include "EndlessPotentiometer.h"
 
 void setUp(void) {}           // before test
@@ -14,20 +16,16 @@ const int V25 = (MAX_RES_VALUE/4)-1;
 const int V50 = (MAX_RES_VALUE/2)-1;
 const int V75 = (MAX_RES_VALUE/2 + MAX_RES_VALUE/4)-1;
 const int V100 = MAX_RES_VALUE-1;
-// TODO: why do we need to multiply by 2 ??
-const int step = (MAX_POT_VALUE/MAX_RES_VALUE)*2;
+// see comment for sensitivity wrt to the *2
+const int step = ((float)MAX_POT_VALUE/(float)MAX_RES_VALUE)*2.0;
 
 void init_pot(EndlessPotentiometer& p) {
-    p.sensitivity = step;
+    p.sensitivity = ((float)MAX_POT_VALUE/(float)MAX_RES_VALUE)*2.0;
+    p.threshold = p.safetyNet = 0; // tests don't jitter
     p.minValue = V0;
     p.maxValue = V100;
     p.value=V0;
-    // A & B should have an offset of MID_ADC
-    // depending on which starting point we choose, different tests fail :/
-    p.updateValues(MIN_ADC_VALUE, MID_ADC_VALUE);
-    //p.updateValues(MID_ADC_VALUE, MIN_ADC_VALUE);
-    //p.updateValues(MID_ADC_VALUE, MAX_ADC_VALUE);
-    //p.updateValues(MAX_ADC_VALUE, MID_ADC_VALUE);
+    // don't call updateValues() yet, but always call it twice in the tests
 }
 
 void test_0_degrees() {
@@ -35,6 +33,7 @@ void test_0_degrees() {
     init_pot(p);
 
     p.value=V0;
+    p.updateValues(MIN_ADC_VALUE, MID_ADC_VALUE);
     p.updateValues(MIN_ADC_VALUE, MID_ADC_VALUE);
     TEST_ASSERT_EQUAL_INT(V0, p.value);
     TEST_ASSERT_EQUAL_INT(0, p.valueChanged);
@@ -63,7 +62,7 @@ void test_0_degrees_cw() {
     p.updateValues(MIN_ADC_VALUE, MID_ADC_VALUE);
     p.updateValues(MIN_ADC_VALUE+step, MID_ADC_VALUE+step);
     TEST_ASSERT_EQUAL_INT(V0+1, p.value);
-    //TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
+    TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
     TEST_ASSERT_EQUAL_INT(EndlessPotentiometer::CLOCKWISE, p.direction);
     TEST_ASSERT_TRUE(p.isMoving);
 }
@@ -74,8 +73,9 @@ void test_90_degrees() {
 
     p.value=V25;
     p.updateValues(MID_ADC_VALUE, MAX_ADC_VALUE);
+    p.updateValues(MID_ADC_VALUE, MAX_ADC_VALUE);
     TEST_ASSERT_EQUAL_INT(V25, p.value);
-    //TEST_ASSERT_EQUAL_INT(0, p.valueChanged);
+    TEST_ASSERT_EQUAL_INT(0, p.valueChanged);
     TEST_ASSERT_EQUAL_INT(EndlessPotentiometer::NOT_MOVING, p.direction);
     TEST_ASSERT_FALSE(p.isMoving);
 }
@@ -88,7 +88,7 @@ void test_90_degrees_ccw() {
     p.updateValues(MID_ADC_VALUE, MAX_ADC_VALUE);
     p.updateValues(MID_ADC_VALUE-step, MAX_ADC_VALUE-step);
     TEST_ASSERT_EQUAL_INT(V25-1, p.value);
-    //TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
+    TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
     TEST_ASSERT_EQUAL_INT(EndlessPotentiometer::COUNTER_CLOCKWISE, p.direction);
     TEST_ASSERT_TRUE(p.isMoving);
 }
@@ -101,7 +101,7 @@ void test_90_degrees_cw() {
     p.updateValues(MID_ADC_VALUE, MAX_ADC_VALUE);
     p.updateValues(MID_ADC_VALUE+step, MAX_ADC_VALUE-step);
     TEST_ASSERT_EQUAL_INT(V25+1, p.value);
-    //TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
+    TEST_ASSERT_EQUAL_INT(1, p.valueChanged);
     TEST_ASSERT_EQUAL_INT(EndlessPotentiometer::CLOCKWISE, p.direction);
     TEST_ASSERT_TRUE(p.isMoving);
 }
@@ -111,6 +111,7 @@ void test_180_degrees() {
     init_pot(p);
 
     p.value=V50;
+    p.updateValues(MAX_ADC_VALUE, MID_ADC_VALUE);
     p.updateValues(MAX_ADC_VALUE, MID_ADC_VALUE);
     TEST_ASSERT_EQUAL_INT(V50, p.value);
     TEST_ASSERT_EQUAL_INT(0, p.valueChanged);
@@ -149,6 +150,7 @@ void test_270_degrees() {
     init_pot(p);
 
     p.value=V75;
+    p.updateValues(MID_ADC_VALUE, MIN_ADC_VALUE);
     p.updateValues(MID_ADC_VALUE, MIN_ADC_VALUE);
     TEST_ASSERT_EQUAL_INT(V75, p.value);
     TEST_ASSERT_EQUAL_INT(0, p.valueChanged);
