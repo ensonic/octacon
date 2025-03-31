@@ -4,7 +4,6 @@
 #define SRC_KNOBS_H
 
 #include <Mux.h>
-#include <EndlessPotentiometer.h>
 
 #include <mavg.h>
 
@@ -26,16 +25,20 @@ public:
     void attachButtonCallback(buttonCallback_t callback);
 
 private:
-    const static unsigned knobCount = 1;
+    const static unsigned knobCount = 3;
     admux::Mux *vala,*valb, *btn;
     buttonCallback_t bcb;
     valueCallback_t vcb;
-    EndlessPotentiometer pots[knobCount];
+    int minV,maxV;
+    float scale;
+    int adcValues[knobCount] = {0,};
+    int values[knobCount];
     int buttons[knobCount];
 
     // moving averages for analog reads
     MAvg mavgA[knobCount], mavgB[knobCount];
     
+    int handlePot(int ix, int va, int vb);
 };
 
 #endif // SRC_KNOBS_H
