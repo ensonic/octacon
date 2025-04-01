@@ -29,6 +29,11 @@ void Knobs::tick(void) {
 
         auto va = mavgA[i].update(vala->read());
         auto vb = mavgB[i].update(valb->read());
+       
+        // see plot.py
+        /*if (i==0) {
+            dbg.printf("plt:%d,%d\n", va, vb);
+        }*/
 
         int delta = handlePot(i, va, vb);
         if (vcb && abs(delta) > 0) {
