@@ -31,6 +31,8 @@ private:
     valueCallback_t vcb;
     int minV,maxV;
     float scale;
+    // ignore changes less than this in the adc range
+    int threshold = 5;
     int adcValues[knobCount] = {0,};
     int values[knobCount];
     int buttons[knobCount];

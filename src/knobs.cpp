@@ -95,7 +95,7 @@ int Knobs::handlePot(int ix, int va, int vb) {
     int value = (int)(float)(ADC_100_PCT * (0.5 - (angle / M_PI)));
     int delta = value - adcValues[ix];
     int adelta = abs(delta);
-    if (adelta < 5) { // TODO: add jitter parameter ('5')
+    if (adelta < threshold) {
         return 0;
     }
     // a/b should be only up to 50% apart

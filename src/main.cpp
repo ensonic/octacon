@@ -108,5 +108,5 @@ void loop() {
         t0 = millis();
     }
 
-    delay(50);
+    delay(10);
 }
