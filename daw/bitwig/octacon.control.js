@@ -18,9 +18,12 @@ const SYSEX_END = " F7";
 const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END
 const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END
 
+const SYSEX_RATE = 100
+
 let remoteControlCursor;
 let outPort;
 let midiQueue = [];
+let displayValues = [];
 
 function init() {
 	host.getMidiInPort(0).setMidiCallback(onMidi0);
@@ -41,13 +44,18 @@ function init() {
 		param.value().addValueObserver(127, valueFn);
 		param.name().addValueObserver(nameFn)
 		param.displayedValue().addValueObserver(displayValueFn);
+		displayValues[j] = { prev: "", next: "" };
 	}
+
+	// rate limit sending the pretty values, when using automation this can
+	// otherwise overload the controller
+	host.scheduleTask(queueDisplayValueChanges, SYSEX_RATE);
 	println("octacon initialized!");
 }
 
 function onValueChange(index, value) {
-	let param = remoteControlCursor.getParameter(index);
-	println("Id: " + index + " PrettyValue: " + param.displayedValue().get());
+	//let param = remoteControlCursor.getParameter(index);
+	//println("Id: " + index + " PrettyValue: " + param.displayedValue().get());
 	midiQueue.push({
 		type: 'cc',
 		ix: index,
@@ -56,7 +64,7 @@ function onValueChange(index, value) {
 }
 
 function onNameChange(index, value) {
-	println("Id: " + index + " Name: " + value);
+	//println("Id: " + index + " Name: " + value);
 	let ix = index.toString(16).padStart(2, '0');
 	let len = value.length.toString(16).padStart(2, '0');
 	value = value.replace(/[^\x00-\x7F]/g, "").trim();
@@ -69,16 +77,29 @@ function onNameChange(index, value) {
 }
 
 function onDisplayValueChange(index, value) {
-	println("Id: " + index + " PrettyValue: " + value);
-	let ix = index.toString(16).padStart(2, '0');
-	let len = value.length.toString(16).padStart(2, '0');
-	value = value.replace(/[^\x00-\x7F]/g, "").trim();
-	let name = value.toHex(value.length)
-	midiQueue.push({
-		type: 'sysex',
-		// 01 + <ix> + <len> + <name>
-		data: '01 ' + ix + len + name,
-	})
+	displayValues[index].next = value;
+	//println("Id: " + index + " PrettyValue: " + value);
+}
+
+function queueDisplayValueChanges() {
+	for (let index = 0; index < displayValues.length; index++) {
+		let dv = displayValues[index];
+		if (dv.next === dv.prev) {
+			continue;
+		}
+		dv.prev = dv.next
+		let ix = index.toString(16).padStart(2, '0');
+		let value = dv.next;
+		let len = value.length.toString(16).padStart(2, '0');
+		value = value.replace(/[^\x00-\x7F]/g, "").trim();
+		let name = value.toHex(value.length)
+		midiQueue.push({
+			type: 'sysex',
+			// 01 + <ix> + <len> + <name>
+			data: '01 ' + ix + len + name,
+		})
+	}
+	host.scheduleTask(queueDisplayValueChanges, SYSEX_RATE);
 }
 
 // Called when a short MIDI message is received on MIDI input port 0.
