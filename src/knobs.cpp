@@ -12,6 +12,7 @@ static const int ADC_50_PCT = (ADC_100_PCT>>1);
 static const int ADC_80_PCT = ADC_100_PCT * 0.8;
 static const int ADC_55_PCT = ADC_100_PCT * 0.55;
 static const int ADC_20_PCT = ADC_100_PCT * 0.2;
+static const float PI2 = M_PI + M_PI;
 
 Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {}
 
@@ -95,18 +96,21 @@ int Knobs::handlePot(int ix, int va, int vb) {
         (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT, 
         (float)(va-ADC_50_PCT)/(float)ADC_50_PCT);
     // map angle from -pi .. pi -> 0 .. ADC_100_PCT (and flip) 
-    int value = (int)(float)(ADC_100_PCT * (0.5 - (angle / M_PI)));
+    int value = (int)(ADC_100_PCT * (0.5 - (angle / PI2)));
     int delta = value - adcValues[ix];
     int adelta = abs(delta);
     if (adelta < threshold) {
         return 0;
     }
+    // we must now update it as otherwise skipping large values we would keep
+    // getting too large values during next run
+    adcValues[ix] = value; 
     // a/b should be only up to 50% apart
     //delta = (delta < -ADC_50_PCT) ? -ADC_50_PCT : (delta > ADC_50_PCT) ? ADC_50_PCT : delta;
     if (adelta > ADC_55_PCT) {  // TODO: also make this a param?
+        //dbg.printf("%02d: too large: %d=%d-%d, %lf\n", ix, adelta, value, adcValues[ix], angle);
         return 0;
     }
     //dbg.printf("%4d + %+5d = %4d\n", adcValues[ix], delta, value);
-    adcValues[ix] = value;
     return delta / scale;
 }
