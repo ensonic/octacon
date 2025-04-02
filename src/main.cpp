@@ -96,17 +96,23 @@ void setup() {
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
+// run midi at full speed
+// don't poll the know too quickly though
 void loop() {
-    knobs.tick();
-    mio.tick();
-
-    static unsigned t0 = 0;
-    static bool blink = false;
-    if (millis() - t0 > 500)  {
-        digitalWrite(LED_BUILTIN, blink);
-        blink = !blink;
-        t0 = millis();
+    unsigned m=millis();
+    static unsigned tk = 0;
+    if (m - tk > 20) {
+        knobs.tick();
+        tk = m;
     }
 
-    delay(10);
+    mio.tick();
+
+    static unsigned tb = 0;
+    static bool blink = false;
+    if (m - tb > 500)  {
+        digitalWrite(LED_BUILTIN, blink);
+        blink = !blink;
+        tb = m;
+    }
 }
