@@ -36,6 +36,8 @@ private:
     int adcValues[knobCount] = {0,};
     int values[knobCount];
     int buttons[knobCount];
+    // ignore value changes when we turn the know to prevent jumps
+    unsigned long lastTs[knobCount];
 
     // moving averages for analog reads
     MAvg mavgA[knobCount], mavgB[knobCount];

@@ -37,6 +37,7 @@ void Knobs::tick(void) {
 
         int delta = handlePot(i, va, vb);
         if (vcb && abs(delta) > 0) {
+            lastTs[i] = millis();
             int v=values[i];
             if ( v + delta > maxV) {
                 dbg.printf("clip upper: %d + %d\n", v, delta);
@@ -73,6 +74,8 @@ void Knobs::setValue(int val) {
 }
 
 void Knobs::setValue(unsigned ix, int val) {
+    if ((millis() - lastTs[ix]) < 100) return;
+
     values[ix] = val;
 }
 
