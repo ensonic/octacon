@@ -20,11 +20,11 @@ void UI::init(void) {
 
     d1->clearBuffer();
     d1->drawStrX2(x,32+8, logo);
-    d1->sendBuffer(); // display refresh: 3043 µs
+    d1->updateDisplay(); // display refresh: 3043 µs
     if(d2) {
         d2->clearBuffer();
         d2->drawStrX2(x,32+8, logo);
-        d2->sendBuffer();
+        d2->updateDisplay();
     }
     delay(100);
 }
@@ -112,12 +112,16 @@ void UI::initPage(U8G2 *d) {
 void UI::drawPage(U8G2 *d, UIParam p0, UIParam p1, UIParam p2, UIParam p3) {
     if (!d) return;
 
-    // TODO: if we update from the callback, we can use updateDisplayArea() instead of sendBuffer()
-    // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
     d->clearBuffer();
     drawColumn(d, 0, p0, p2);
     drawColumn(d, 64, p1, p3);
-    d->sendBuffer();  // display refresh: 3059 µs
+    d->updateDisplay(); // display refresh: 3059 µs
+    // TODO: if we update from the callback, we maybe send a bit mask for which value changed
+    // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
+    //unsigned ts0 = micros();
+    //d->updateDisplayArea(0,0,8,4); // display refresh: 827 µs
+    //ts0=micros()-ts0;
+    //dbg.printf("refresh: %u µs\n", ts0);
 }
 
 void UI::drawColumn(U8G2 *d, unsigned x, UIParam p0, UIParam p1) {
