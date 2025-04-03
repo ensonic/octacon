@@ -20,7 +20,7 @@ void UI::init(void) {
 
     d1->clearBuffer();
     d1->drawStrX2(x,32+8, logo);
-    d1->sendBuffer();
+    d1->sendBuffer(); // display refresh: 3043 µs
     if(d2) {
         d2->clearBuffer();
         d2->drawStrX2(x,32+8, logo);
@@ -117,7 +117,7 @@ void UI::drawPage(U8G2 *d, UIParam p0, UIParam p1, UIParam p2, UIParam p3) {
     d->clearBuffer();
     drawColumn(d, 0, p0, p2);
     drawColumn(d, 64, p1, p3);
-    d->sendBuffer();  // update display
+    d->sendBuffer();  // display refresh: 3059 µs
 }
 
 void UI::drawColumn(U8G2 *d, unsigned x, UIParam p0, UIParam p1) {
