@@ -106,15 +106,13 @@ int Knobs::handlePot(int ix, int va, int vb) {
     if (adelta < threshold) {
         return 0;
     }
-    // we must now update it as otherwise skipping large values we would keep
-    // getting too large values during next run
-    adcValues[ix] = value; 
-    // a/b should be only up to 50% apart
-    //delta = (delta < -ADC_50_PCT) ? -ADC_50_PCT : (delta > ADC_50_PCT) ? ADC_50_PCT : delta;
-    if (adelta > ADC_55_PCT) {  // TODO: also make this a param?
-        //dbg.printf("%02d: too large: %d=%d-%d, %lf\n", ix, adelta, value, adcValues[ix], angle);
-        return 0;
+    // handle 360° - 0° transition.
+    if (adelta > ADC_55_PCT) {
+        //dbg.printf("WRAP: %4d + %+5d = %4d\n", adcValues[ix], delta, value);
+        delta = ADC_100_PCT - adelta;
+        //dbg.printf("WRAP: -> %d\n", delta);
     }
+    adcValues[ix] = value; 
     //dbg.printf("%4d + %+5d = %4d\n", adcValues[ix], delta, value);
     return delta / scale;
 }
