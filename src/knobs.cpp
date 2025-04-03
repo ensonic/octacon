@@ -41,10 +41,10 @@ void Knobs::tick(void) {
             lastTs[i] = millis();
             int v=values[i];
             if ( v + delta > maxV) {
-                dbg.printf("clip upper: %d + %d\n", v, delta);
+                //dbg.printf("clip upper: %d + %d\n", v, delta);
                 delta = maxV - values[i];
             } else if (v + delta < minV) {
-                dbg.printf("clip lower: %d + %d\n", v, delta);
+                //dbg.printf("clip lower: %d + %d\n", v, delta);
                 delta = minV - values[i];
             }
             if (abs(delta) > 0) {
