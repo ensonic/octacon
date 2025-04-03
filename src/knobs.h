@@ -4,8 +4,8 @@
 #define SRC_KNOBS_H
 
 #include <Mux.h>
-
 #include <mavg.h>
+#include <config.h>
 
 using valueCallback_t = void (*)(unsigned ix, int value, int delta);
 using buttonCallback_t = void (*)(unsigned ix, int state);
@@ -20,6 +20,7 @@ public:
     void setLimits(int mi, int ma);
     void setValue(int val);
     void setValue(unsigned ix, int val);
+    int getValue(unsigned ix);
 
     void attachValueCallback(valueCallback_t callback);
     void attachButtonCallback(buttonCallback_t callback);
@@ -32,7 +33,7 @@ private:
     int minV,maxV;
     float scale;
     // ignore changes less than this in the adc range
-    int threshold = 5;
+    int threshold = 12;
     int adcValues[knobCount] = {0,};
     int values[knobCount];
     int buttons[knobCount];

@@ -13,10 +13,27 @@ Adafruit_USBD_MIDI usbMidi;
 
 //midi::MidiInterface<midi::SerialMIDI<Adafruit_USBD_MIDI>> MIDI;
 
-static void midiControlChangeCB(uint8_t channel, uint8_t number, uint8_t value) {
-    auto ix = number - ControllerBase;
-    knobs.setValue(ix, value);
-    ui.setValue(ix, value);
+static void midiControlChangeCB(uint8_t channel, uint8_t cc, uint8_t value) {
+    int ix = -1;
+    int v = value;
+#ifdef CTRL_HIRES
+    if (cc >=  CC_MSB_ValueBase && cc < CC_MSB_ValueBase + 8) {
+        ix = cc - CC_MSB_ValueBase;
+        v <<= 7;
+    }
+    if (cc >=  CC_LSB_ValueBase && cc < CC_LSB_ValueBase + 8) {
+        ix = cc - CC_LSB_ValueBase;
+        v += knobs.getValue(ix);
+    }
+else
+    if (cc >=  CC_MSB_ValueBase && cc < CC_MSB_ValueBase + 8) {
+        ix = cc - CC_MSB_ValueBase;
+    }
+#endif
+    if (ix >= 0) {
+        knobs.setValue(ix, v);
+        ui.setValue(ix, v);
+    }
 }
 
 static void midiSysExParamName(byte *data, unsigned size) {
@@ -94,6 +111,15 @@ void MidiIO::tick(void) {
     midiInterface.read();
 }
 
-void MidiIO::sendCC(uint8_t cc, uint8_t v) {
-    midiInterface.sendControlChange(ControllerBase + cc, v, 1);
+void MidiIO::sendValueCC(uint8_t cc, int v) {
+#ifdef CTRL_HIRES    
+    midiInterface.sendControlChange(CC_MSB_ValueBase + cc, v>>7, 1);
+    midiInterface.sendControlChange(CC_LSB_ValueBase + cc, v & 127, 1);
+#else
+    midiInterface.sendControlChange(CC_MSB_ValueBase + cc, v, 1);
+#endif
+}
+
+void MidiIO::sendButtonCC(uint8_t cc, int v) {
+    midiInterface.sendControlChange(CC_ButtonBase + cc, v, 1);
 }

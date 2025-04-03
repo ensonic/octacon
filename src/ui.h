@@ -4,6 +4,18 @@
 #define SRC_UI_H
 
 #include <U8g2lib.h>
+#include <config.h>
+
+#ifdef CTRL_HIRES
+// scaling for ui sliders
+#define UI_SCALE 128
+// raw value digits
+#define UI_DIGITS 5
+#else
+#define UI_SCALE 1
+#define UI_DIGITS 3
+#endif
+
 
 struct UIParam {
     String name, prettyvalue;

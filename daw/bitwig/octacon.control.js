@@ -17,13 +17,17 @@ const SYSEX_BEGIN = "F0 7D ";
 const SYSEX_END = " F7";
 const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END
 const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END
-
 const SYSEX_RATE = 100
+
+const CC_MSB_ValueBase = 9;
+const CC_LSB_ValueBase = 9 + 32;
+
 
 let remoteControlCursor;
 let outPort;
 let midiQueue = [];
 let displayValues = [];
+let values = [0, 0, 0, 0, 0, 0, 0, 0];
 
 function init() {
 	host.getMidiInPort(0).setMidiCallback(onMidi0);
@@ -104,14 +108,21 @@ function queueDisplayValueChanges() {
 
 // Called when a short MIDI message is received on MIDI input port 0.
 function onMidi0(status, data1, data2) {
-   if (!isChannelController(status)) {
-      return true;
-   }
-   if (data1 >= 9 && data1 <= 16) {
-      let ix = data1 - 9;
-      remoteControlCursor.getParameter(ix).value().set(data2 / 127);
-	  // println("got control change: " + data1 + ", " + data2);
-   }
+	if (!isChannelController(status)) {
+		return true;
+	}
+	let ix = -1
+	if (data1 >= CC_MSB_ValueBase && data1 < CC_MSB_ValueBase+8) {
+		ix = data1 - CC_MSB_ValueBase;
+		values[ix] = data2 << 7;
+	}
+	if (data1 >= CC_LSB_ValueBase && data1 < CC_LSB_ValueBase+8) {
+		ix = data1 - CC_LSB_ValueBase;
+		values[ix] += data2;
+	}
+	if (ix >= 0) {
+		remoteControlCursor.getParameter(ix).value().set(values[ix]/16384.0);
+	}
 	return true;
 }
 
@@ -119,7 +130,8 @@ function flush() {
    for (let m of midiQueue) {
 		switch (m.type) {
 			case 'cc': {
-				outPort.sendMidi(0xb0, 9 + m.ix, m.value);
+				outPort.sendMidi(0xb0, CC_MSB_ValueBase + m.ix, m.value >> 7);
+				outPort.sendMidi(0xb0, CC_LSB_ValueBase + m.ix, m.value & 127);
 				break;
 			}
 			case 'sysex': {

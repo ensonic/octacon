@@ -36,7 +36,7 @@ void UI::begin() {
 void UI::draw(unsigned ix) {
     if (!extInfo) {
         for (unsigned i=0; i<numParams; i++) {
-            p[i].prettyvalue = String(u8x8_u8toa(p[i].value, 3));
+            p[i].prettyvalue = String(u8x8_u16toa(p[i].value, UI_DIGITS));
         }
     }
     drawPage(d1, p[0], p[1], p[2], p[2]);
@@ -72,7 +72,7 @@ void UI::setValue(unsigned ix, unsigned value) {
         dbg.printf("ix=%u > %u\n", ix, numParams);
         return;
     }
-    p[ix].value = value;
+    p[ix].value = value / UI_SCALE;
     draw(ix);
 }
 

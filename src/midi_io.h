@@ -5,8 +5,14 @@
 
 #include <Adafruit_TinyUSB.h>
 #include <MIDI.h>
+#include <config.h>
 
-const uint8_t ControllerBase = 9;
+// 14-bit MIDI uses two midi CC for one control. The standard is to have CC 0-31
+// send the MSB (Most Significant Bit) and CC 32-63 send the LSB (Least
+// Significant Bit).
+const uint8_t CC_MSB_ValueBase = 9;
+const uint8_t CC_LSB_ValueBase = 9 + 32;
+const uint8_t CC_ButtonBase = 9 + 8;
 
 enum class SysExCmd : byte {
     ParamName,      // receive parameter names
@@ -21,7 +27,8 @@ public:
     void init(void);
     void tick(void);
 
-    void sendCC(uint8_t cc, uint8_t v);
+    void sendValueCC(uint8_t cc, int v);
+    void sendButtonCC(uint8_t cc, int v);
 
 private:
     using MidiTransport = MIDI_NAMESPACE::SerialMIDI<Adafruit_USBD_MIDI>;

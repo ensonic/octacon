@@ -33,8 +33,9 @@ Source  Event                  Ch  Data
 
 ## control changes
 
-The encoders send values on cc 9 to 16
-The encoder buttons send 64 on cc 17 to 25
+The encoders send 7bit values on cc 9 to 16. In 14-bit mode, the lsb is send on
+cc 41 to 49.
+The encoder buttons send values {0=off, 64=on} on cc 17 to 25.
 
 ## sysex
 

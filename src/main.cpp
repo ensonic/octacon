@@ -3,14 +3,13 @@
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
 
+#include <config.h>
 #include <debug.h>
 #include <knobs.h>
 #include <midi_io.h>
 #include <ui.h>
 
 // Hardware defines
-
-const unsigned numParams = 8;
 
 // Knobs
 using namespace admux;
@@ -58,12 +57,12 @@ Debug dbg(&Serial2);
 static void valueCB(unsigned int ix,int value,int delta) {
     dbg.printf("Knob[%u]: Value = %d | Delta = %d\n", ix, value, delta);
     ui.setValue(ix, value);
-    mio.sendCC(ix, value);
+    mio.sendValueCC(ix, value);
 }
 
 static void buttonCB(unsigned int ix, int state) {
     dbg.printf("Button:[%u]; State= %d\n", ix, state);
-    mio.sendCC(numParams + ix, state*64);
+    mio.sendButtonCC(ix, state*64);
 }
 
 void setup() {
@@ -75,8 +74,8 @@ void setup() {
 
     ui.init();
 
-    knobs.setLimits(0,127);
-    knobs.setValue(50);
+    knobs.setLimits(0,VAL_MAX);
+    knobs.setValue(VAL_MAX/2);
     knobs.attachButtonCallback(buttonCB);
     knobs.attachValueCallback(valueCB);
     knobs.begin();

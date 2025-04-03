@@ -80,6 +80,10 @@ void Knobs::setValue(unsigned ix, int val) {
     values[ix] = val;
 }
 
+int Knobs::getValue(unsigned ix) {
+    return values[ix];
+}
+
 void Knobs::attachValueCallback(valueCallback_t callback) {
     vcb = callback;
 }

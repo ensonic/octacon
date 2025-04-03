@@ -4,6 +4,7 @@
 #define SRC_DEBUG_H
 
 #include <Arduino.h>
+#include <config.h>
 
 class Debug {
 public:
