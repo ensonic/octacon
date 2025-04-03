@@ -9,9 +9,7 @@ extern Debug dbg;
 
 static const int ADC_100_PCT = (1<<12);
 static const int ADC_50_PCT = (ADC_100_PCT>>1);
-static const int ADC_80_PCT = ADC_100_PCT * 0.8;
 static const int ADC_55_PCT = ADC_100_PCT * 0.55;
-static const int ADC_20_PCT = ADC_100_PCT * 0.2;
 static const float PI2 = M_PI + M_PI;
 
 Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {}
@@ -103,14 +101,11 @@ int Knobs::handlePot(int ix, int va, int vb) {
     int value = (int)(ADC_100_PCT * (0.5 - (angle / PI2)));
     int delta = value - adcValues[ix];
     int adelta = abs(delta);
-    if (adelta < threshold) {
+    if (adelta < threshold) { // handle jitter
         return 0;
     }
-    // handle 360° - 0° transition.
-    if (adelta > ADC_55_PCT) {
-        //dbg.printf("WRAP: %4d + %+5d = %4d\n", adcValues[ix], delta, value);
+    if (adelta > ADC_55_PCT) { // handle 360° - 0° transition.
         delta = ADC_100_PCT - adelta;
-        //dbg.printf("WRAP: -> %d\n", delta);
     }
     adcValues[ix] = value; 
     //dbg.printf("%4d + %+5d = %4d\n", adcValues[ix], delta, value);
