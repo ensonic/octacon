@@ -94,6 +94,8 @@ void UI::initPage(U8G2 *d) {
     if (!d) return;
 
     d->begin();
+    // less flicker: 9.5 Timing & Driving Scheme Setting Command Table 
+    d->sendF("ca", 0xd5, 0xF0); 
     d->setContrast(200);  //  Brightness setting from 0 to 255
     d->setFont(
     // 6 pixel
