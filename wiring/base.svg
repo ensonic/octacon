@@ -26,7 +26,7 @@
      showgrid="true"
      inkscape:zoom="2.955623"
      inkscape:cx="260.18203"
-     inkscape:cy="189.63853"
+     inkscape:cy="189.97687"
      inkscape:window-width="2560"
      inkscape:window-height="1374"
      inkscape:window-x="0"
@@ -133,8 +133,8 @@
        id="path6"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 132.08,2.5399999 V 96.519996"
+       style="fill:none;stroke:#ff0000;stroke-width:0.217486px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 132.08,2.5399999 V 66.039999"
        id="path7" />
     <text
        xml:space="preserve"
@@ -153,8 +153,9 @@
        id="path8" />
     <path
        style="fill:none;stroke:#00abff;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 147.32018,2.6722914 147.32,96.519996"
-       id="path9" />
+       d="M 147.32018,2.6722914 147.32,93.979999"
+       id="path9"
+       sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
        style="font-size:1.76389px;line-height:1.25;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans, Normal';text-align:center;text-anchor:middle;stroke-width:0.264583"
@@ -227,20 +228,15 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-opacity:1;stroke:#00abff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
-       d="M 147.32,93.979996 H 38.1 l -1e-6,-10.159997 h 2.54 m 25.4,10.16 0,-10.16 h 2.54"
-       id="path19"
-       sodipodi:nodetypes="ccccccc" />
-    <path
-       style="fill:none;fill-opacity:1;stroke:#00abff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
        d="m 93.979996,93.979996 3e-6,-10.159997 h 2.54"
        id="path20"
        sodipodi:nodetypes="ccc" />
     <path
-       style="fill:none;fill-opacity:1;stroke:#00abff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;stroke:#0000ff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
        d="m 38.1,86.359999 h 2.539999"
        id="path21" />
     <path
-       style="fill:none;fill-opacity:1;stroke:#00abff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;stroke:#0000ff;stroke-width:0.254;stroke-dasharray:none;stroke-opacity:1"
        d="m 38.1,88.899996 h 2.539999"
        id="path22" />
     <path
@@ -716,5 +712,59 @@
          style="text-align:center;text-anchor:middle;stroke-width:0.254"
          x="97.908844"
          y="81.874237">5</tspan></text>
+    <path
+       style="fill:none;fill-opacity:0.788235;stroke:#0000ff;stroke-width:0.254"
+       d="M 139.7,96.519999 H 38.099999 l 1e-6,-12.573 2.539999,-0.127"
+       id="path1"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#00abff;stroke-width:0.254"
+       d="M 147.32,93.979999 H 66.039999 v -10.287 l 2.54,0"
+       id="path2"
+       sodipodi:nodetypes="ccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:1.76389px;line-height:1.4;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:#00abff;stroke-width:0.254"
+       x="73.625984"
+       y="15.095669"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.254"
+         x="73.625984"
+         y="15.095669">Pico 2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.76389px;line-height:1.4;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.254"
+       x="45.674351"
+       y="88.810486"
+       id="text4"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         style="stroke-width:0.254;fill:#4d4d4d;fill-opacity:1"
+         x="45.674351"
+         y="88.810486">Buttons</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.76389px;line-height:1.4;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.254"
+       x="73.574295"
+       y="88.902588"
+       id="text8"><tspan
+         sodipodi:role="line"
+         id="tspan8"
+         style="stroke-width:0.254;fill:#4d4d4d;fill-opacity:1"
+         x="73.574295"
+         y="88.902588">Pot A</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.76389px;line-height:1.4;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.254"
+       x="101.56297"
+       y="88.900002"
+       id="text10"><tspan
+         sodipodi:role="line"
+         id="tspan10"
+         style="stroke-width:0.254;fill:#4d4d4d;fill-opacity:1"
+         x="101.56297"
+         y="88.900002">Pot B</tspan></text>
   </g>
 </svg>
