@@ -7,6 +7,7 @@
 
 extern Debug dbg;
 
+// use analogReadResolution(12); to activate this resolution, default is 10
 static const int ADC_100_PCT = (1<<12);
 static const int ADC_50_PCT = (ADC_100_PCT>>1);
 static const int ADC_55_PCT = ADC_100_PCT * 0.55;
