@@ -10,10 +10,13 @@ extern Debug dbg;
 // use analogReadResolution(12); to activate this resolution, default is 10
 static const int ADC_100_PCT = (1<<12);
 static const int ADC_50_PCT = (ADC_100_PCT>>1);
-static const int ADC_55_PCT = ADC_100_PCT * 0.55;
-static const float PI2 = M_PI + M_PI;
 
-Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {}
+Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {
+    float threshold_pct = (float)threshold / (float)ADC_100_PCT;
+    for (unsigned i = 0; i < knobCount; i++) {
+        pots[i].threshold = threshold_pct;
+    }
+}
 
 void Knobs::begin(void) {
     analogReadResolution(12);
@@ -35,7 +38,9 @@ void Knobs::tick(void) {
             dbg.printf("plt:%d,%d\n", va, vb);
         }*/
 
-        int delta = handlePot(i, va, vb);
+        float vaf = (float)(va-ADC_50_PCT)/(float)ADC_50_PCT;
+        float vab = (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT;
+        int delta = scale * pots[i].update(vaf, vab);
         if (vcb && abs(delta) > 0) {
             lastTs[i] = millis();
             int v=values[i];
@@ -64,7 +69,7 @@ void Knobs::tick(void) {
 void Knobs::setLimits(int mi, int ma) {
     minV = mi;
     maxV = ma;
-    scale = (float)ADC_100_PCT/(float)((1+ma)-mi);
+    scale = (float)((1+ma)-mi);
 }
 
 void Knobs::setValue(int val) {
@@ -89,26 +94,4 @@ void Knobs::attachValueCallback(valueCallback_t callback) {
 
 void Knobs::attachButtonCallback(buttonCallback_t callback) {
     bcb = callback;
-}
-
-// Calculate the position change from previous call.
-int Knobs::handlePot(int ix, int va, int vb) {
-    // atan2 is meant for cos and sin, but we actually have triangles
-    // map them to -1 .. +1 range
-    float angle = atan2(
-        (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT, 
-        (float)(va-ADC_50_PCT)/(float)ADC_50_PCT);
-    // map angle from -pi .. pi -> 0 .. ADC_100_PCT (and flip) 
-    int value = (int)(ADC_100_PCT * (0.5 - (angle / PI2)));
-    int delta = value - adcValues[ix];
-    int adelta = abs(delta);
-    if (adelta < threshold) { // handle jitter
-        return 0;
-    }
-    if (adelta > ADC_55_PCT) { // handle 360° - 0° transition.
-        delta = ADC_100_PCT - adelta;
-    }
-    adcValues[ix] = value; 
-    //dbg.printf("%4d + %+5d = %4d\n", adcValues[ix], delta, value);
-    return delta / scale;
 }

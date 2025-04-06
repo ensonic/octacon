@@ -3,6 +3,7 @@
 #ifndef SRC_KNOBS_H
 #define SRC_KNOBS_H
 
+#include <EndlessPotentiometer.h>
 #include <Mux.h>
 #include <mavg.h>
 #include <config.h>
@@ -34,7 +35,6 @@ private:
     float scale;
     // ignore changes less than this in the adc range
     int threshold = 12;
-    int adcValues[knobCount] = {0,};
     int values[knobCount];
     int buttons[knobCount];
     // ignore value changes when we turn the know to prevent jumps
@@ -42,8 +42,8 @@ private:
 
     // moving averages for analog reads
     MAvg mavgA[knobCount], mavgB[knobCount];
-    
-    int handlePot(int ix, int va, int vb);
+    // analog reads to movements
+    EndlessPotentiometer pots[knobCount];
 };
 
 #endif // SRC_KNOBS_H
