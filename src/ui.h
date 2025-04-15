@@ -44,8 +44,8 @@ private:
     UIParam p[numParams] = { {"","",0}, };
     
     void initPage(U8G2 *d);
-    void drawPage(U8G2 *d, UIParam p0, UIParam p1, UIParam p2, UIParam p3);
-    void drawColumn(U8G2 *d, unsigned x, UIParam p0, UIParam p1);
+    void drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3);
+    void drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1);
 };
 
 #endif // SRC_UI_H
