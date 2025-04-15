@@ -45,7 +45,7 @@ function init() {
 		let param = remoteControlCursor.getParameter(j);
 		param.markInterested();
 		param.setIndication(true);
-		param.value().addValueObserver(127, valueFn);
+		param.value().addValueObserver(16384, valueFn);
 		param.name().addValueObserver(nameFn)
 		param.displayedValue().addValueObserver(displayValueFn);
 		displayValues[j] = { prev: "", next: "" };
