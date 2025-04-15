@@ -67,6 +67,8 @@ static void buttonCB(unsigned int ix, int state) {
 
 void setup() {
     unsigned ts0 = millis();
+    leds.Begin(); // call early to reset to black
+
     dbg.init(5,4);
     dbg.println("Setup start");
 
@@ -80,10 +82,9 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    leds.Begin();
     for (uint16_t i=0; i<LedCount; i++) {
         auto hslc = bitwigScheme[i];
-        hslc.L = 0.3;  // Brightness from 0.0 to 1.0
+        hslc.L = 0.2;  // Brightness from 0.0 to 1.0
         leds.SetPixelColor(i, hslc);
     }
     leds.Show();
