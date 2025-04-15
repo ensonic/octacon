@@ -39,14 +39,11 @@ void UI::draw(unsigned ix) {
             p[i].prettyvalue = String(u8x8_u16toa(p[i].value, UI_DIGITS));
         }
     }
-    drawPage(d1, p[0], p[1], p[2], p[2]);
-    /* once we have 2 displays
     if (!(ix & 0x2)) {
       this->drawPage(d1, p[0], p[1], p[4], p[5]);
     } else {
       this->drawPage(d2, p[2], p[3], p[6], p[7]);
     }
-    */  
 }
 
 void UI::setName(unsigned ix, char *str, unsigned len) {

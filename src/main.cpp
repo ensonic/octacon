@@ -41,8 +41,8 @@ HslColor bitwigScheme[] = {
 // GPIO18 : SCK Serial Clock)
 // GPIO19 : SDA (Master Out, Slave In = Serial Data Output)
 U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-//U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
-UI ui(&oled1);
+U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
+UI ui(&oled1, &oled2);
 
 // USB MIDI object
 MidiIO mio;
