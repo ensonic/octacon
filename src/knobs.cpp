@@ -13,7 +13,7 @@ static const int ADC_50_PCT = (ADC_100_PCT>>1);
 
 Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {
     float threshold_pct = (float)threshold / (float)ADC_100_PCT;
-    for (unsigned i = 0; i < knobCount; i++) {
+    for (unsigned i = 0; i < numParams; i++) {
         pots[i].threshold = threshold_pct;
     }
 }
@@ -24,7 +24,7 @@ void Knobs::begin(void) {
 }
 
 void Knobs::tick(void) {
-    for (unsigned i = 0; i < knobCount; i++) {
+    for (unsigned i = 0; i < numParams; i++) {
         // it is enough to drive one multiplexer address, as we use the same 
         // S{0,1,2} pins for all 3 multiplexers
         vala->channel(i);
@@ -73,7 +73,7 @@ void Knobs::setLimits(int mi, int ma) {
 }
 
 void Knobs::setValue(int val) {
-    for (unsigned i = 0; i < knobCount; i++) {
+    for (unsigned i = 0; i < numParams; i++) {
        values[i] = val;
     }
 }

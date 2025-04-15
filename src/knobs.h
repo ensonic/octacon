@@ -27,7 +27,6 @@ public:
     void attachButtonCallback(buttonCallback_t callback);
 
 private:
-    const static unsigned knobCount = 3;
     admux::Mux *vala,*valb, *btn;
     buttonCallback_t bcb;
     valueCallback_t vcb;
@@ -35,15 +34,15 @@ private:
     float scale;
     // ignore changes less than this in the adc range
     int threshold = 12;
-    int values[knobCount];
-    int buttons[knobCount];
+    int values[numParams];
+    int buttons[numParams];
     // ignore value changes when we turn the know to prevent jumps
-    unsigned long lastTs[knobCount];
+    unsigned long lastTs[numParams];
 
     // moving averages for analog reads
-    MAvg mavgA[knobCount], mavgB[knobCount];
+    MAvg mavgA[numParams], mavgB[numParams];
     // analog reads to movements
-    EndlessPotentiometer pots[knobCount];
+    EndlessPotentiometer pots[numParams];
 };
 
 #endif // SRC_KNOBS_H
