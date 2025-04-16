@@ -13,7 +13,7 @@
 
 // Knobs
 using namespace admux;
-Pinset addr(D11, D12, D13);
+Pinset addr(D13, D12, D11);
 Mux vala(Pin(A0, INPUT, PinType::Analog), addr);
 Mux valb(Pin(A1, INPUT, PinType::Analog), addr);
 Mux btn(Pin(D10, INPUT_PULLUP, PinType::Digital), addr);
