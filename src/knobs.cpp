@@ -39,8 +39,8 @@ void Knobs::tick(void) {
         }*/
 
         float vaf = (float)(va-ADC_50_PCT)/(float)ADC_50_PCT;
-        float vab = (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT;
-        int delta = scale * pots[i].update(vaf, vab);
+        float vbf = (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT;
+        int delta = scale * pots[i].update(vaf, vbf);
         if (vcb && abs(delta) > 0) {
             lastTs[i] = millis();
             int v=values[i];
