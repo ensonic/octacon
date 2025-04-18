@@ -76,7 +76,7 @@ void UI::setValue(unsigned ix, unsigned value) {
 void UI::enableExtInfo(bool enable) {
     extInfo = enable;
     if (!extInfo) {
-        const String ixstr[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
+        const String ixstr[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
         for (unsigned i=0; i<numParams; i++) {
             p[i].name = String("Param ") + ixstr[i];
         }
