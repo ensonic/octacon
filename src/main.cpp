@@ -22,8 +22,8 @@ Knobs knobs(&vala, &valb, &btn);
 // LEDs
 const uint8_t LedPin = 1;
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
-//NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(LedCount, LedPin);
-NeoPixelBus<NeoGrbFeature, Rp2040x4Pio1Ws2812xMethod> leds(LedCount, LedPin); // note: modern WS2812 with letter like WS2812b
+//NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(numParams, LedPin);
+NeoPixelBus<NeoRgbFeature, Rp2040x4Pio1Ws2812xMethod> leds(numParams, LedPin); // note: modern WS2812 with letter like WS2812b
 // Bitwig colors
 HslColor bitwigScheme[] = {
     HslColor(RgbColor(0xf7, 0x1b, 0x3e)), // red
