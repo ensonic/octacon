@@ -23,17 +23,18 @@ Knobs knobs(&vala, &valb, &btn);
 const uint8_t LedPin = 1;
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
 //NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(numParams, LedPin);
-NeoPixelBus<NeoRgbFeature, Rp2040x4Pio1Ws2812xMethod> leds(numParams, LedPin); // note: modern WS2812 with letter like WS2812b
+NeoPixelBus<NeoRgbFeature, Rp2040x4Pio1Ws2812xMethod> leds(numParams, LedPin);
 // Bitwig colors
 HslColor bitwigScheme[] = {
     HslColor(RgbColor(0xf4, 0x1b, 0x3e)), // red
     HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
     HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
     HslColor(RgbColor(0x5b, 0xc5, 0x15)), // lime
-    HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
-    HslColor(RgbColor(0x5c, 0x8e, 0xee)), // light blue
-    HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
+    // swap last 4, since we soldered them in wrong order
     HslColor(RgbColor(0xff, 0x54, 0xb0)), // pink
+    HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
+    HslColor(RgbColor(0x5c, 0x8e, 0xee)), // light blue
+    HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
 };
 
 // OLEDs
@@ -117,6 +118,8 @@ void loop() {
             auto hslc = bitwigScheme[i];
             hslc.L = (blink ? 0.2 : 0.3);
             leds.SetPixelColor(i, hslc);
+            //auto c = RgbColor(knobs.getValue(0)>>6,knobs.getValue(1)>>6,knobs.getValue(2)>>6);
+            //leds.SetPixelColor(i, c);
         }
         leds.Show();
         */
