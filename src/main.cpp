@@ -49,8 +49,6 @@ MidiIO mio;
 // Debugging (disable by passing a nullptr)
 Debug dbg(&Serial2);
 
-// Function protos
-
 // Callbacks
 
 static void valueCB(unsigned int ix,int value,int delta) {
