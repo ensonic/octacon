@@ -37,7 +37,7 @@ private:
     int values[numParams];
     int buttons[numParams];
     // ignore value changes when we turn the know to prevent jumps
-    unsigned long lastTs[numParams];
+    unsigned long lastTs[numParams] = {0,};
 
     // moving averages for analog reads
     MAvg mavgA[numParams], mavgB[numParams];
