@@ -111,5 +111,14 @@ void loop() {
         digitalWrite(LED_BUILTIN, blink);
         blink = !blink;
         tb = m;
+
+        /* DEBUG
+        for (uint16_t i=0; i<numParams; i++) {
+            auto hslc = bitwigScheme[i];
+            hslc.L = (blink ? 0.2 : 0.3);
+            leds.SetPixelColor(i, hslc);
+        }
+        leds.Show();
+        */
     }
 }
