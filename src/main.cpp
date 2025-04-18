@@ -20,7 +20,6 @@ Mux btn(Pin(D10, INPUT_PULLUP, PinType::Digital), addr);
 Knobs knobs(&vala, &valb, &btn);
 
 // LEDs
-const uint16_t LedCount = numParams;
 const uint8_t LedPin = 1;
 // https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
 //NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(LedCount, LedPin);
@@ -82,7 +81,7 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    for (uint16_t i=0; i<LedCount; i++) {
+    for (uint16_t i=0; i<numParams; i++) {
         auto hslc = bitwigScheme[i];
         hslc.L = 0.2;  // Brightness from 0.0 to 1.0
         leds.SetPixelColor(i, hslc);
