@@ -33,7 +33,7 @@ private:
     int minV,maxV;
     float scale;
     // ignore changes less than this in the adc range
-    int threshold = 12;
+    int threshold = 14;
     int values[numParams];
     int buttons[numParams];
     // ignore value changes when we turn the know to prevent jumps
