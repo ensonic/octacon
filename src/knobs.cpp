@@ -11,6 +11,12 @@ extern Debug dbg;
 static const int ADC_100_PCT = (1<<12);
 static const int ADC_50_PCT = (ADC_100_PCT>>1);
 
+/* which pot to debug (press button to switch)
+static int dbgix=0;
+static int vami=ADC_100_PCT,vama=0;
+static int vbmi=ADC_100_PCT,vbma=0;
+*/
+
 Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {
     float threshold_pct = (float)threshold / (float)ADC_100_PCT;
     for (unsigned i = 0; i < numParams; i++) {
@@ -37,6 +43,13 @@ void Knobs::tick(void) {
         /*if (i==0) {
             dbg.printf("plt:%d,%d\n", va, vb);
         }*/
+        /* DEBUG
+        if (i == dbgix) {
+            if (va > vama) vama=va;
+            else if (va < vami) vami=va;
+            if (vb > vbma) vbma=vb;
+            else if (vb < vbmi) vbmi=vb;
+        } */
 
         float vaf = (float)(va-ADC_50_PCT)/(float)ADC_50_PCT;
         float vbf = (float)(vb-ADC_50_PCT)/(float)ADC_50_PCT;
@@ -54,6 +67,11 @@ void Knobs::tick(void) {
             if (abs(delta) > 0) {
                 v += delta;
                 vcb(i, v, delta);
+                /* DEBUG
+                if (i == dbgix) {
+                    dbg.printf("%1d: v=%5d, d=%+5d, va=%5d..%5d..%5d, vb=%5d..%5d..%5d\n",
+                        i, v, delta, vami,va, vama, vbmi, vb, vbma);
+                } */
             }
             values[i] = v;
         }
@@ -62,6 +80,12 @@ void Knobs::tick(void) {
         if (bcb && button != buttons[i]) {
             buttons[i] = button;
             bcb(i, button);
+            /* DEBUG
+            if (button == 0) {
+                vami=vbmi=ADC_100_PCT;
+                vama=vbma=0;
+                dbgix = i;
+            } */
         }
     }    
 }
