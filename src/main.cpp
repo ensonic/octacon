@@ -69,7 +69,7 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    leds.SetColors(0.2);
+    leds.SetColors(0.1);
 
     mio.init();
 
@@ -104,8 +104,21 @@ void loop() {
     }
 
     static unsigned tt = 0;
+    static bool touched=false;
+    static float brightness = 0.1;
     if (m - tt > 100)  {
-        dbg.printf("CapSensor: %lf\n", capsense.touch());
+        // if long, it has been touched
+        float csv = capsense.touch();
+        // dbg.printf("CapSensor: %lf µs\n", csv);
+        if (!touched && csv > 2000.0) {
+            touched = true;
+            dbg.printf("CapSensor: touch    : %lf µs\n", csv);
+            brightness = 0.4 - brightness; // toggle between 0.1 <> 0.3
+            leds.SetColors(brightness);
+        } else if (touched && csv < 1000.0) {
+            touched = false;
+            dbg.printf("CapSensor: released : %lf µs\n", csv);
+        }
         tt = m;
     }
 }
