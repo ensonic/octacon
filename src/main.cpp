@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <debug.h>
+#include <leds.h>
 #include <knobs.h>
 #include <midi_io.h>
 #include <ui.h>
@@ -21,28 +22,13 @@ Mux btn(Pin(D10, INPUT_PULLUP, PinType::Digital), addr);
 Knobs knobs(&vala, &valb, &btn);
 
 // LEDs
-const uint8_t LedPin = 1;
-// https://github.com/Makuna/NeoPixelBus/discussions/878 - RP2350 - support for a 3rd PIO instance
-//NeoPixelBus<NeoRgbFeature, NeoWs2812xMethod> leds(numParams, LedPin);
-NeoPixelBus<NeoRgbFeature, Rp2040x4Pio1Ws2812xMethod> leds(numParams, LedPin);
-// Bitwig colors
-HslColor bitwigScheme[] = {
-    HslColor(RgbColor(0xf4, 0x1b, 0x3e)), // red
-    HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
-    HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
-    HslColor(RgbColor(0x5b, 0xc5, 0x15)), // lime
-    // swap last 4, since we soldered them in wrong order
-    HslColor(RgbColor(0xff, 0x54, 0xb0)), // pink
-    HslColor(RgbColor(0xc3, 0x6e, 0xff)), // purple
-    HslColor(RgbColor(0x5c, 0x8e, 0xee)), // light blue
-    HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
-};
+Leds leds(new LedStripType(numParams, D1));
 
 // OLEDs
 // GPIO18 : SCK Serial Clock)
 // GPIO19 : SDA (Master Out, Slave In = Serial Data Output)
-U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ 21, /* dc=*/ 22, /* reset=*/ 20);
-U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ 17, /* dc=*/ 22, /* reset=*/ 16);
+U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ D21, /* dc=*/ D22, /* reset=*/ D20);
+U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ D17, /* dc=*/ D22, /* reset=*/ D16);
 UI ui(&oled1, &oled2);
 
 // USB MIDI object
@@ -68,9 +54,9 @@ static void buttonCB(unsigned int ix, int state) {
 
 void setup() {
     unsigned ts0 = millis();
-    leds.Begin(); // call early to reset to black
+    leds.begin(); // call early to reset to black
 
-    dbg.init(5,4);
+    dbg.init(D5,D4);
     dbg.println("Setup start");
 
     pinMode(LED_BUILTIN, OUTPUT);
@@ -83,18 +69,13 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    for (uint16_t i=0; i<numParams; i++) {
-        auto hslc = bitwigScheme[i];
-        hslc.L = 0.2;  // Brightness from 0.0 to 1.0
-        leds.SetPixelColor(i, hslc);
-    }
-    leds.Show();
+    leds.SetColors(0.2);
 
     mio.init();
 
     ui.begin();
 
-    capsense.begin(2, 28, 3.3, 10, 10, 0.2);
+    capsense.begin(D2, D28, 3.3, 10, 10, 0.2);
 
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
@@ -117,16 +98,8 @@ void loop() {
         digitalWrite(LED_BUILTIN, blink);
         blink = !blink;
         tb = m;
-
         /* DEBUG
-        for (uint16_t i=0; i<numParams; i++) {
-            auto hslc = bitwigScheme[i];
-            hslc.L = (blink ? 0.2 : 0.3);
-            leds.SetPixelColor(i, hslc);
-            //auto c = RgbColor(knobs.getValue(0)>>6,knobs.getValue(1)>>6,knobs.getValue(2)>>6);
-            //leds.SetPixelColor(i, c);
-        }
-        leds.Show();
+        leds.SetColors((blink ? 0.2 : 0.3));
         */
     }
 
