@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <FastCapacitiveSensor.h>
 #include <Mux.h>
 #include <NeoPixelBus.h>
 #include <U8g2lib.h>
@@ -47,6 +48,8 @@ UI ui(&oled1, &oled2);
 // USB MIDI object
 MidiIO mio;
 
+FastCapacitiveSensor capsense;
+
 // Debugging (disable by passing a nullptr)
 Debug dbg(&Serial2);
 
@@ -91,6 +94,8 @@ void setup() {
 
     ui.begin();
 
+    capsense.begin(2, 28, 3.3, 10, 10, 0.2);
+
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
@@ -123,5 +128,11 @@ void loop() {
         }
         leds.Show();
         */
+    }
+
+    static unsigned tt = 0;
+    if (m - tt > 100)  {
+        dbg.printf("CapSensor: %lf\n", capsense.touch());
+        tt = m;
     }
 }
