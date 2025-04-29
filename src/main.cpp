@@ -75,6 +75,10 @@ void setup() {
 
     ui.begin();
 
+    // will read 10 values
+    // sort them
+    // 0.2 -> ignore low/high 20%
+    // average the rest
     capsense.begin(D2, D28, 3.3, 10, 10, 0.2);
 
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
