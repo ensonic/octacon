@@ -90,7 +90,7 @@ void setup() {
 // don't poll the know too quickly though
 void loop() {
     unsigned m=millis();
-    static unsigned tk = 0;
+    static unsigned long tk = 0;
     if (m - tk > 20) {
         knobs.tick();
         tk = m;
@@ -98,7 +98,7 @@ void loop() {
 
     mio.tick();
 
-    static unsigned tb = 0;
+    static unsigned long tb = 0;
     static bool blink = false;
     if (m - tb > 500)  {
         digitalWrite(LED_BUILTIN, blink);
@@ -109,9 +109,9 @@ void loop() {
         */
     }
 
-    static unsigned tt = 0;
+    static unsigned long tt = 0;
     static bool touched=false;
-    static unsigned touch_wait = 0;
+    static unsigned long touch_wait = 0;
     static float brightness = 0.1;
     if (m - tt > touch_wait)  {
         touch_wait = 0;
