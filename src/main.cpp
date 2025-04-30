@@ -75,11 +75,13 @@ void setup() {
 
     ui.begin();
 
-    // will read 10 values
+    // will read 4 values
     // sort them
-    // 0.2 -> ignore low/high 20%
-    // average the rest
-    capsense.begin(D2, D28, 3.3, 10, 10, 0.2);
+    // 0.0 -> don't ignore any
+    // average the rest/all
+    pinMode(D2, OUTPUT_OPENDRAIN);
+    pinMode(A2, INPUT);
+    capsense.begin(D2, A2, 3.3, 4, 10, 0.0);
 
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
@@ -109,18 +111,22 @@ void loop() {
 
     static unsigned tt = 0;
     static bool touched=false;
+    static unsigned touch_wait = 0;
     static float brightness = 0.1;
-    if (m - tt > 100)  {
-        // if long, it has been touched
-        float csv = capsense.touch();
-        // dbg.printf("CapSensor: %lf µs\n", csv);
-        if (!touched && csv > 2000.0) {
+    if (m - tt > touch_wait)  {
+        touch_wait = 0;
+        // csv is the discharge time, if long, the sensor has been touched
+        double csv = capsense.touch();
+        //dbg.printf("CapSensor: %lf µs\n", csv);
+        if (!touched && csv > 1000.0) {
             touched = true;
+            touch_wait = 250;
             dbg.printf("CapSensor: touch    : %lf µs\n", csv);
             brightness = 0.4 - brightness; // toggle between 0.1 <> 0.3
             leds.SetColors(brightness);
-        } else if (touched && csv < 1000.0) {
+        } else if (touched && csv < 250.0) {
             touched = false;
+            touch_wait = 250;
             dbg.printf("CapSensor: released : %lf µs\n", csv);
         }
         tt = m;
