@@ -81,7 +81,7 @@ void setup() {
     // average the rest/all
     pinMode(D2, OUTPUT_OPENDRAIN);
     pinMode(A2, INPUT);
-    capsense.begin(D2, A2, 3.3, 4, 10, 0.0);
+    capsense.begin(D2, A2, 4, 10, 0.0);
 
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
