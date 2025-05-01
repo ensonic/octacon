@@ -2,9 +2,9 @@
 
 #include <debug.h>
 
-Debug::Debug(SerialUART *serial) : serial(serial) {}
+Debug::Debug(pin_size_t rx, pin_size_t tx, unsigned long baud, SerialUART *serial) : rx(rx), tx(tx), baud(baud), serial(serial) {}
 
-void Debug::init(pin_size_t rx, pin_size_t tx, unsigned long baud) {
+void Debug::init() {
     if (!serial) return;
 
     serial->setRX(rx);

@@ -8,15 +8,17 @@
 
 class Debug {
 public:
-    Debug(SerialUART *serial=nullptr);
+    Debug(pin_size_t rx, pin_size_t tx, unsigned long baud = 115200UL, SerialUART *serial=nullptr);
 
-    void init(pin_size_t rx, pin_size_t tx, unsigned long baud = 115200UL);
+    void init();
 
     void println(const char* s);
     void printf(const char* fmt, ...);
 
 private:
-    SerialUART *serial; 
+    SerialUART *serial;
+    pin_size_t rx, tx;
+    unsigned long baud;
 };
 
 #endif // SRC_DEBUG_H

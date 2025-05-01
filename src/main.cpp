@@ -38,7 +38,7 @@ MidiIO mio;
 FastCapacitiveSensor capsense(D2, A2, 4, 10, 0.0);
 
 // Debugging (disable by passing a nullptr)
-Debug dbg(&Serial2);
+Debug dbg(D5, D4,115200UL, &Serial2);
 
 // Callbacks
 
@@ -57,7 +57,7 @@ void setup() {
     unsigned ts0 = millis();
     leds.begin(); // call early to reset to black
 
-    dbg.init(D5,D4);
+    dbg.init();
     dbg.println("Setup start");
 
     pinMode(LED_BUILTIN, OUTPUT);
