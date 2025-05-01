@@ -111,18 +111,18 @@ void loop() {
     if (m - tt > touch_wait)  {
         touch_wait = 0;
         // csv is the discharge time, if long, the sensor has been touched
-        double csv = capsense.touch();
+        unsigned long csv = capsense.touch();
         //dbg.printf("CapSensor: %lf µs\n", csv);
-        if (!touched && csv > 1000.0) {
+        if (!touched && csv > 1000) {
             touched = true;
             touch_wait = 250;
-            dbg.printf("CapSensor: touch    : %lf µs\n", csv);
+            dbg.printf("CapSensor: touch    : %lu µs\n", csv);
             brightness = 0.4 - brightness; // toggle between 0.1 <> 0.3
             leds.SetColors(brightness);
-        } else if (touched && csv < 250.0) {
+        } else if (touched && csv < 250) {
             touched = false;
             touch_wait = 250;
-            dbg.printf("CapSensor: released : %lf µs\n", csv);
+            dbg.printf("CapSensor: released : %lu µs\n", csv);
         }
         tt = m;
     }
