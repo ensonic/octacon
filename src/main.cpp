@@ -54,7 +54,7 @@ static void buttonCB(unsigned int ix, int state) {
 }
 
 void setup() {
-    unsigned ts0 = millis();
+    unsigned long ts0 = millis();
     leds.begin(); // call early to reset to black
 
     dbg.init();
@@ -70,19 +70,18 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    leds.SetColors(0.1);
-
     mio.init();
 
     ui.begin();
 
     capsense.begin();
 
+    leds.SetColors(0.1);
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
 // run midi at full speed
-// don't poll the know too quickly though
+// don't poll the knobs too quickly though
 void loop() {
     unsigned m=millis();
     static unsigned long tk = 0;
