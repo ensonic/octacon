@@ -40,15 +40,19 @@ FastCapacitiveSensor capsense(D2, A2, 4, 10, 0.0);
 // Debugging (disable by passing a nullptr)
 Debug dbg(D5, D4,115200UL, &Serial2);
 
+static boolean active = false;
+
 // Callbacks
 
 static void valueCB(unsigned int ix,int value,int delta) {
+    if (!active) return;
     dbg.printf("Knob[%u]: Value = %d | Delta = %d\n", ix, value, delta);
     ui.setValue(ix, value);
     mio.sendValueCC(ix, value);
 }
 
 static void buttonCB(unsigned int ix, int state) {
+    if (!active) return;
     dbg.printf("Button:[%u]; State= %d\n", ix, state);
     mio.sendButtonCC(ix, state*64);
 }
@@ -76,7 +80,7 @@ void setup() {
 
     capsense.begin();
 
-    leds.SetColors(0.1);
+    leds.SetColors(0.05);
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
@@ -104,9 +108,8 @@ void loop() {
     }
 
     static unsigned long tt = 0;
-    static bool touched=false;
     static unsigned long touch_wait = 0;
-    static float brightness = 0.1;
+    static boolean touched = false;
     if (m - tt > touch_wait)  {
         touch_wait = 0;
         // csv is the discharge time, if long, the sensor has been touched
@@ -116,8 +119,8 @@ void loop() {
             touched = true;
             touch_wait = 250;
             dbg.printf("CapSensor: touch    : %lu µs\n", csv);
-            brightness = 0.4 - brightness; // toggle between 0.1 <> 0.3
-            leds.SetColors(brightness);
+            active = !active;
+            leds.SetColors(active ? 0.3 : 0.05);
         } else if (touched && csv < 250) {
             touched = false;
             touch_wait = 250;
