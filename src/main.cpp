@@ -34,7 +34,8 @@ UI ui(&oled1, &oled2);
 // USB MIDI object
 MidiIO mio;
 
-FastCapacitiveSensor capsense;
+// will read 4 values, don't ignore any (0.0) and calculate average
+FastCapacitiveSensor capsense(D2, A2, 4, 10, 0.0);
 
 // Debugging (disable by passing a nullptr)
 Debug dbg(&Serial2);
@@ -75,13 +76,7 @@ void setup() {
 
     ui.begin();
 
-    // will read 4 values
-    // sort them
-    // 0.0 -> don't ignore any
-    // average the rest/all
-    pinMode(D2, OUTPUT_OPENDRAIN);
-    pinMode(A2, INPUT);
-    capsense.begin(D2, A2, 4, 10, 0.0);
+    capsense.begin();
 
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
