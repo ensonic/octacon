@@ -71,8 +71,8 @@ m3sd=.5+m3r;
 // make it smooth
 $fn=25;
 
-// main body
 difference() {
+    // main body
     cube([pw,ph,pd],center=true);
 
     // displays
