@@ -7,14 +7,13 @@
 wd=2.0;
 
 // case size
-pw=160.0 + (2 * wd);
-pw2=pw/2.0;
-pw4=pw/4.0;
-ph=100.0 + (2 * wd);
-ph2=ph/2.0;
+casew=160.0 + (2 * wd);
+casew2=casew/2.0;
+caseh=100.0 + (2 * wd);
+caseh2=caseh/2.0;
 // 20 mm screw - 4mm for inserts on the other side
-// 15 mm is enought to hold the base pcb with the pico2
-pd=20-4;
+// 15 mm is enough to hold the base pcb with the pico-2
+cased=20-4;
 
 // pcb size
 pcbw=150.0;
@@ -23,9 +22,9 @@ pcbh=100.0;
 pcbh2=pcbh/2.0;
 
 // corners
-cr=3;
-cd=cr*2;
-co=cr/2;
+corr=3;
+cord=corr*2;
+coff=corr/2;
 
 // m3 screw holes
 m3d=3.2; // extra size to cover 3d print thickness
@@ -35,42 +34,40 @@ $fn=25;
 
 difference() {
     // main body
-    cube([pw,ph,pd],center=true);
+    cube([casew,caseh,cased],center=true);
 
     // space for inside
-    translate([0,0,wd]) { cube([pw - (2.0 * wd), ph - (2.0 * wd), pd-wd],center=true); }
+    translate([0,0,wd]) { cube([casew - (2.0 * wd), caseh - (2.0 * wd), cased-wd],center=true); }
     
     // rounded corners
-    translate([-(pw2-cr),-(ph2-cr),0]) { round_corner(pd+5, cd, -co, -co); }
-    translate([+(pw2-cr),-(ph2-cr),0]) { round_corner(pd+5, cd, +co, -co); }
-    translate([-(pw2-cr),+(ph2-cr),0]) { round_corner(pd+5, cd, -co, +co); }
-    translate([+(pw2-cr),+(ph2-cr),0]) { round_corner(pd+5, cd, +co, +co); }
+    translate([-(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, -coff); }
+    translate([+(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, -coff); }
+    translate([-(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, +coff); }
+    translate([+(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, +coff); }
 
-    // holes for case screews
-    translate([-(pw2-3.5),-(ph2-3.5),0]) { screw_hole(pd, m3d); }
-    translate([+(pw2-3.5),-(ph2-3.5),0]) { screw_hole(pd, m3d); }
-    translate([-(pw2-3.5),+(ph2-3.5),0]) { screw_hole(pd, m3d); }
-    translate([+(pw2-3.5),+(ph2-3.5),0]) { screw_hole(pd, m3d); }
+    // holes for case screws
+    translate([-(casew2-3.5),-(caseh2-3.5),0]) { screw_hole(cased, m3d); }
+    translate([+(casew2-3.5),-(caseh2-3.5),0]) { screw_hole(cased, m3d); }
+    translate([-(casew2-3.5),+(caseh2-3.5),0]) { screw_hole(cased, m3d); }
+    translate([+(casew2-3.5),+(caseh2-3.5),0]) { screw_hole(cased, m3d); }
     
     // holes for base screws
-    translate([-(pcbw2-2.5),-(pcbh2-2.5),0]) { screw_hole(pd, m3d); }
-    translate([+(pcbw2-2.5),-(pcbh2-2.5),0]) { screw_hole(pd, m3d); }
-    translate([-(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(pd, m3d); }
-    translate([+(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(pd, m3d); }
+    translate([-(pcbw2-2.5),-(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
+    translate([+(pcbw2-2.5),-(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
+    translate([-(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
+    translate([+(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
     
     // usb hole
     
     // debug header hole
 }
 
-// tubes for case screews
+// tubes for case screws
 // 3.5 == (wd + wd) - .5 (thickness of screen wall / 2)
-translate([-(pw2-3.5),-(ph2-3.5),wd/2]) { screw_tube(pd-wd, m3d); }
-translate([+(pw2-3.5),-(ph2-3.5),wd/2]) { screw_tube(pd-wd, m3d); }
-translate([-(pw2-3.5),+(ph2-3.5),wd/2]) { screw_tube(pd-wd, m3d); }
-translate([+(pw2-3.5),+(ph2-3.5),wd/2]) { screw_tube(pd-wd, m3d); }
-
-
+translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
+translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
+translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
+translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
 
 module round_corner(h, d, x, y) {
     r=d/2;
