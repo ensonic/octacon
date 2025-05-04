@@ -14,6 +14,7 @@ caseh2=caseh/2.0;
 // 20 mm screw - 4mm for inserts on the other side
 // 15 mm is enough to hold the base pcb with the pico-2
 cased=20-4;
+cased2=cased/2.0;
 
 // pcb size
 pcbw=150.0;
@@ -57,9 +58,19 @@ difference() {
     translate([-(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
     translate([+(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
     
-    // usb hole
-    
-    // debug header hole
+    // usb hole (in inch grid: ~ 33-37)
+    // micro-b plug body: max 11.7 mm * 8.5 mm)
+    // on the pico-2 the micro-usb socket extends ~ 2mm boyond the board
+    // TODO: calculate z: 
+    // TODO: we might need some space on the front side too
+    // x (just need the middle): startpin=33, -1 (to start a zero), +3 (to get middle of the 6 pins)
+    translate([-(pcbw2-((33-1)+3)*2.54),+caseh2,5]) { cube([12.0, wd*4, 8.5], center=true);}
+
+    // debug header hole (in inch grid: 21-24)
+    // 11.0 x 3.0 mm
+    // the debug headers extend ~ 1 mm beyond the pcb
+    // startpin=21, -1 (to start a zero), +2 (to get middle of the 4 pins)
+    translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+1.5)]) { cube([11.0, wd*4, 3.0], center=true);}    
 }
 
 // tubes for case screws
