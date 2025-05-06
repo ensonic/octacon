@@ -1,7 +1,12 @@
 // octacon frontpanel
-// alias openscad=~/Applications/OpenSCAD-2021.01-x86_64.AppImage
 // openscad -o front.stl front.scad
 // f3d front.stl
+
+// might be overridden by the Makefile to generate partial object
+test=false;
+if (test==true) {
+    echo("TEST MODE ACTIVE", test);
+}
 
 // wall thickness
 wd=2.0;
@@ -75,85 +80,98 @@ m4d=4.2;
 $fn=25;
 
 difference() {
-    // main body
-    cube([casew,caseh,cased],center=true);
+    union() {
+        difference() {
+            // main body
+            cube([casew,caseh,cased],center=true);
 
-    // space for inside
-    translate([0,0,wd]) { cube([casew - (2.0 * wd), caseh - (2.0 * wd), cased-wd],center=true); }
-    
-    // rounded corners
-    translate([-(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, -coff); }
-    translate([+(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, -coff); }
-    translate([-(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, +coff); }
-    translate([+(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, +coff); }
+            // space for inside
+            translate([0,0,wd]) { cube([casew - (2.0 * wd), caseh - (2.0 * wd), cased-wd],center=true); }
+            
+            // rounded corners
+            translate([-(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, -coff); }
+            translate([+(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, -coff); }
+            translate([-(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, +coff); }
+            translate([+(casew2-corr),+(caseh2-corr),0]) { round_corner(cased+5, cord, +coff, +coff); }
 
-    // displays
-    translate([-pcbw4,  dho,0]) { cube([dw,dh,cased+5], center=true); }
-    translate([-pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
-    translate([+pcbw4,  dho,0]) { cube([dw,dh,cased+5], center=true); }
-    translate([+pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
+            // displays
+            translate([-pcbw4,  dho,0]) { cube([dw,dh,cased+5], center=true); }
+            translate([-pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
+            translate([+pcbw4,  dho,0]) { cube([dw,dh,cased+5], center=true); }
+            translate([+pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
 
-    // leds
-    // bottom row
-    translate([0,-lm,0]) { 
-        translate([-pcbw2+lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([-pcbw2+lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([+pcbw2-lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([+pcbw2-lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
+            // leds
+            // bottom row
+            translate([0,-lm,0]) { 
+                translate([-pcbw2+lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([-pcbw2+lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([+pcbw2-lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([+pcbw2-lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
+            }
+            // top row
+            translate([0,lm,0]) { 
+                translate([-pcbw2+lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([-pcbw2+lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([+pcbw2-lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
+                translate([+pcbw2-lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
+            }
+
+            // potentiometers
+            // bottom row
+            translate([0,-em,0]) { 
+                translate([-pcbw2+lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([-pcbw2+lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([+pcbw2-lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([+pcbw2-lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+            }
+            // top row
+            translate([0,em,0]) { 
+                translate([-pcbw2+lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([-pcbw2+lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([+pcbw2-lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+                translate([+pcbw2-lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+            }
+
+            // tube-holes for case-inserts
+            translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
+        }
+
+        // tubes for case screw inserts
+        // 3.5 == (wd + wd) - .5 (thickness of screen wall / 2)
+        translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+        translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+        translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+        translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+
+        // led boxes
+        // bottom row
+        translate([0,-(lm+lsg2-1),-(cased2-lsh2)]) {
+            translate([-pcbw2+lppx2,0,0]) { led_shield(); }
+            translate([-pcbw2+lppx1,0,0]) { led_shield(); }
+            translate([+pcbw2-lppx2,0,0]) { led_shield(); }
+            translate([+pcbw2-lppx1,0,0]) { led_shield(); }
+        }
+        // top row
+        translate([0,+(lm+lsg2-1),-(cased2-lsh2)]) {
+            translate([-pcbw2+lppx2,0,0]) { led_shield(); }
+            translate([-pcbw2+lppx1,0,0]) { led_shield(); }
+            translate([+pcbw2-lppx2,0,0]) { led_shield(); }
+            translate([+pcbw2-lppx1,0,0]) { led_shield(); }
+        }
     }
-    // top row
-    translate([0,lm,0]) { 
-        translate([-pcbw2+lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([-pcbw2+lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([+pcbw2-lppx2,0.0]) { cube([lw,lh,cased+5], center=true); }
-        translate([+pcbw2-lppx1,0.0]) { cube([lw,lh,cased+5], center=true); }
-    }
 
-    // potentiometers
-    // bottom row
-    translate([0,-em,0]) { 
-        translate([-pcbw2+lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([-pcbw2+lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([+pcbw2-lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([+pcbw2-lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
+    // in test-mode generate only parts of the case
+    translate([(test==true ? 0 : casew*10), 0, 0]) {
+        translate([casew2,0,0]) { cube([casew, caseh+10, cased+10], center=true); }
+        translate([0,-caseh2,0]) { cube([casew+10, caseh, cased+10], center=true); }
     }
-    // top row
-    translate([0,em,0]) { 
-        translate([-pcbw2+lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([-pcbw2+lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([+pcbw2-lppx2,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-        translate([+pcbw2-lppx1,0,0]) { cylinder(h=cased+5,r=er, center=true); }
-    }
-
-    // tube-holes for case-inserts
-    translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-    translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-    translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-    translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
 }
 
-// tubes for case screw inserts
-// 3.5 == (wd + wd) - .5 (thickness of screen wall / 2)
-translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+// modules
 
-// led boxes
-// bottom row
-translate([0,-(lm+lsg2-1),-(cased2-lsh2)]) {
-    translate([-pcbw2+lppx2,0,0]) { led_shield(); }
-    translate([-pcbw2+lppx1,0,0]) { led_shield(); }
-    translate([+pcbw2-lppx2,0,0]) { led_shield(); }
-    translate([+pcbw2-lppx1,0,0]) { led_shield(); }
-}
-// top row
-translate([0,+(lm+lsg2-1),-(cased2-lsh2)]) {
-    translate([-pcbw2+lppx2,0,0]) { led_shield(); }
-    translate([-pcbw2+lppx1,0,0]) { led_shield(); }
-    translate([+pcbw2-lppx2,0,0]) { led_shield(); }
-    translate([+pcbw2-lppx1,0,0]) { led_shield(); }
-}    
 module round_corner(h, d, x, y) {
     r=d/2;
     difference() {
