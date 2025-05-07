@@ -10,6 +10,7 @@ if (test==true) {
 
 // wall thickness
 wd=2.0;
+wd2=wd/2.0;
 
 // case size
 casew=160.0 + (2 * wd);
@@ -133,18 +134,24 @@ difference() {
             }
 
             // tube-holes for case-inserts
-            translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-            translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-            translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
-            translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([-(casew2-3.5),-(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([+(casew2-3.5),-(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([-(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
+            translate([+(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
+
+            // groves for the matching ridges on the back
+            translate([-(casew2-wd2),0,cased2]) { cube([wd2,10,10], center=true); }
+            translate([+(casew2-wd2),0,cased2]) { cube([wd2,10,10], center=true); }
+            translate([0,-(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
+            translate([0,+(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
         }
 
         // tubes for case screw inserts
         // 3.5 == (wd + wd) - .5 (thickness of screen wall / 2)
-        translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-        translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-        translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
-        translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { insert_tube(cased-wd, m4d); }
+        translate([-(casew2-3.5),-(caseh2-3.5),wd2]) { insert_tube(cased-wd, m4d); }
+        translate([+(casew2-3.5),-(caseh2-3.5),wd2]) { insert_tube(cased-wd, m4d); }
+        translate([-(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube(cased-wd, m4d); }
+        translate([+(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube(cased-wd, m4d); }
 
         // led boxes
         // bottom row

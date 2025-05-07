@@ -10,6 +10,7 @@ if (test==true) {
 
 // wall thickness
 wd=2.0;
+wd2=wd/2.0;
 
 // case size
 casew=160.0 + (2 * wd);
@@ -66,12 +67,15 @@ difference() {
             translate([+(pcbw2-2.5),+(pcbh2-2.5),0]) { screw_hole(cased, m3d); }
             
             // usb hole (in inch grid: ~ 33-37)
-            // micro-b plug body: max 11.7 mm * 8.5 mm)
-            // on the pico-2 the micro-usb socket extends ~ 2mm boyond the board
-            // TODO: calculate z: 
-            // TODO: we might need some space on the front side too
+            // micro-b plug body: max 11.7 mm * 8.5 mm
+            // micro-b plug: 7mm x 3mm
+            // on the pico-2 the micro-usb socket extends ~ 2mm beyond the board
+            // hence leaving space for the plug should be enough
+            // TODO: 15mm would be middle off connector inside pcb from inside of the box
+            // TODO: with this height, we need some curout on the front too
+            // z: 15mm - (cased2 - wd)
             // x (just need the middle): startpin=33, -1 (to start a zero), +3 (to get middle of the 6 pins)
-            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2,5]) { cube([12.0, wd*4, 8.5], center=true);}
+            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 15-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
 
             // debug header hole (in inch grid: 21-24)
             // 11.0 x 3.0 mm
@@ -82,10 +86,16 @@ difference() {
 
         // tubes for case screws
         // 3.5 == (wd + wd) - .5 (thickness of screen wall / 2)
-        translate([-(casew2-3.5),-(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
-        translate([+(casew2-3.5),-(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
-        translate([-(casew2-3.5),+(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
-        translate([+(casew2-3.5),+(caseh2-3.5),wd/2]) { screw_tube(cased-wd, m3d); }
+        translate([-(casew2-3.5),-(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
+        translate([+(casew2-3.5),-(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
+        translate([-(casew2-3.5),+(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
+        translate([+(casew2-3.5),+(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
+
+        // ridges to fit matching holes on the front
+        translate([-(casew2-wd2),0,cased2]) { cube([wd2-0.2,8,8], center=true); }
+        translate([+(casew2-wd2),0,cased2]) { cube([wd2-0.2,8,8], center=true); }
+        translate([0,-(caseh2-wd2),cased2]) { cube([8,wd2-0.2,8], center=true); }
+        translate([0,+(caseh2-wd2),cased2]) { cube([8,wd2-0.2,8], center=true); }
     }
 
     // in test-mode generate only parts of the case
