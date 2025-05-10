@@ -144,6 +144,10 @@ difference() {
             translate([+(casew2-wd2),0,cased2]) { cube([wd2,10,10], center=true); }
             translate([0,-(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
             translate([0,+(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
+
+            // holes for split pin legs: 8mm apart, 3mm width
+            translate([-4,em,0]) { cube([0.4,3.1,cased+10], center=true); }
+            translate([+4,em,0]) { cube([0.4,3.1,cased+10], center=true); }
         }
 
         // tubes for case screw inserts
@@ -167,7 +171,7 @@ difference() {
             translate([-pcbw2+lppx1,0,0]) { led_shield(); }
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
             translate([+pcbw2-lppx1,0,0]) { led_shield(); }
-        }
+        }       
     }
 
     // in test-mode generate only parts of the case
