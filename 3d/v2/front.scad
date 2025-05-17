@@ -145,9 +145,14 @@ difference() {
             translate([0,-(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
             translate([0,+(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
 
-            // holes for split pin legs: 8mm apart, 3mm width
-            translate([-4,em,0]) { cube([0.4,3.1,cased+10], center=true); }
-            translate([+4,em,0]) { cube([0.4,3.1,cased+10], center=true); }
+            // holes for split pin legs: 8mm apart, 3mm width, 
+            // position so that we can bend the legs to the middle
+            translate([0,em-4,0]) { cube([3.1,0.4,cased+10], center=true); }
+            translate([0,em+4,0]) { cube([3.1,0.4,cased+10], center=true); }
+            
+            // usb hole (see back.scad for positioning)
+            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 18-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            
         }
 
         // tubes for case screw inserts

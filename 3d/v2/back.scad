@@ -18,7 +18,7 @@ casew2=casew/2.0;
 caseh=100.0 + (2 * wd);
 caseh2=caseh/2.0;
 // 20 mm screw - 4mm for inserts on the other side
-// 15 mm is enough to hold the base pcb with the pico-2
+// 16 mm is enough to hold the base pcb with the pico-2
 cased=20-4;
 cased2=cased/2.0;
 
@@ -71,11 +71,11 @@ difference() {
             // micro-b plug: 7mm x 3mm
             // on the pico-2 the micro-usb socket extends ~ 2mm beyond the board
             // hence leaving space for the plug should be enough
-            // TODO: 15mm would be middle off connector inside pcb from inside of the box
-            // TODO: meassure with PCB-v2: new headers allow for overall 12mm height
-            // z: 11mm - (cased2 - wd)
+            // from the base of the board to top of the usb it is 16mm
+            // TODO: we might need so hole on the front side too
+            // z: 13mm - (cased2 - wd)
             // x (just need the middle): startpin=33, -1 (to start a zero), +3 (to get middle of the 6 pins)
-            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 11-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 13-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
 
             // debug header hole (in inch grid: 21-24)
             // 11.0 x 3.0 mm
