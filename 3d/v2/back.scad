@@ -15,7 +15,7 @@ wd2=wd/2.0;
 // case size
 casew=160.0 + (2 * wd);
 casew2=casew/2.0;
-casehs=0.4; // leave some space to make the pcb fit
+casehs=0.8; // leave some space to make the pcb fit
 caseh=100.0 + (2 * wd) + casehs; 
 caseh2=caseh/2.0;
 // 20 mm screw - 4mm for inserts on the other side

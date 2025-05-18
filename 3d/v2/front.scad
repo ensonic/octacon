@@ -15,7 +15,7 @@ wd2=wd/2.0;
 // case size
 casew=160.0 + (2 * wd);
 casew2=casew/2.0;
-casehs=0.4; // leave some space to make the pcb fit
+casehs=0.8; // leave some space to make the pcb fit
 casehs2=casehs/2.0;
 caseh=100.0 + (2 * wd) + casehs; 
 caseh2=caseh/2.0;
@@ -166,14 +166,14 @@ difference() {
 
         // led boxes
         // bottom row
-        translate([0,-(lm+casehs2+lsg2-1),-(cased2-lsh2)]) {
+        translate([0,-(lm+lsg2-1),-(cased2-lsh2)]) {
             translate([-pcbw2+lppx2,0,0]) { led_shield(); }
             translate([-pcbw2+lppx1,0,0]) { led_shield(); }
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
             translate([+pcbw2-lppx1,0,0]) { led_shield(); }
         }
         // top row
-        translate([0,+(lm+casehs2+lsg2-1),-(cased2-lsh2)]) {
+        translate([0,+(lm+lsg2-1),-(cased2-lsh2)]) {
             translate([-pcbw2+lppx2,0,0]) { led_shield(); }
             translate([-pcbw2+lppx1,0,0]) { led_shield(); }
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
@@ -214,7 +214,7 @@ module insert_tube_hole(h, d) {
 // led shielding
 module led_shield() {
     lshw=lw+2.0; // 2 is the size of the led diffusor
-    lshh=lh+2.0;
+    lshh=lh+4.0;
     difference() {
         cube([lshw+wd,lshh+wd,lsh], center=true);
         cube([lshw,   lshh,   lsh+.5], center=true);
