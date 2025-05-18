@@ -15,7 +15,8 @@ wd2=wd/2.0;
 // case size
 casew=160.0 + (2 * wd);
 casew2=casew/2.0;
-caseh=100.0 + (2 * wd);
+casehs=0.4; // leave some space to make the pcb fit
+caseh=100.0 + (2 * wd) + casehs; 
 caseh2=caseh/2.0;
 // 20 mm screw - 4mm for inserts on the other side
 // 16 mm is enough to hold the base pcb with the pico-2
@@ -81,7 +82,7 @@ difference() {
             // 11.0 x 3.0 mm
             // the debug headers extend ~ 1 mm beyond the pcb
             // startpin=21, -1 (to start a zero), +2 (to get middle of the 4 pins)
-            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+1.5)]) { cube([11.0, wd*4, 3.0], center=true);}    
+            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+4)]) { cube([11.0, wd*4, 3.0], center=true);}    
         }
 
         // tubes for case screws

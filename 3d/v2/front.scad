@@ -15,7 +15,9 @@ wd2=wd/2.0;
 // case size
 casew=160.0 + (2 * wd);
 casew2=casew/2.0;
-caseh=100.0 + (2 * wd);
+casehs=0.4; // leave some space to make the pcb fit
+casehs2=casehs/2.0;
+caseh=100.0 + (2 * wd) + casehs; 
 caseh2=caseh/2.0;
 // 4mm for inserts, 16mm from top of panel to FPC mount
 cased=20;
@@ -164,14 +166,14 @@ difference() {
 
         // led boxes
         // bottom row
-        translate([0,-(lm+lsg2-1),-(cased2-lsh2)]) {
+        translate([0,-(lm+casehs2+lsg2-1),-(cased2-lsh2)]) {
             translate([-pcbw2+lppx2,0,0]) { led_shield(); }
             translate([-pcbw2+lppx1,0,0]) { led_shield(); }
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
             translate([+pcbw2-lppx1,0,0]) { led_shield(); }
         }
         // top row
-        translate([0,+(lm+lsg2-1),-(cased2-lsh2)]) {
+        translate([0,+(lm+casehs2+lsg2-1),-(cased2-lsh2)]) {
             translate([-pcbw2+lppx2,0,0]) { led_shield(); }
             translate([-pcbw2+lppx1,0,0]) { led_shield(); }
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
