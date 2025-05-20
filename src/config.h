@@ -5,6 +5,9 @@
 
 const unsigned numParams = 8;
 
+//#define HW_VER 1
+#define HW_VER 2
+
 // enable 14bit mode, otherwise 7bit
 #define CTRL_HIRES
 #ifdef CTRL_HIRES
