@@ -57,13 +57,17 @@ eh2=6.7;
 eh=eh1+eh2;
 eho=eh1-(eh/2.0); // shaft offset to center
 er=3.7;  // shaft
-em=31.8;   // occupies space from 24.6 .. 39  // TODO: use ppy
+// was 31.8, is now 34,65
+em=pcbh2-ppy;
 
 // leds
 lw=14;
 lh=4;
-lm=46; // we have ~ 7mm from the top of the led&pots pcb
-lsh=9;
+// pcb 2.2 mm space + 4 mm led hole
+lm=46; // we need to cover 6mm from the top of the led&pots pcb
+// with 13, we had only 7mm to the surface
+// with 12.5 we have ~1 mm gap between pot & pcb
+lsh=12.0;
 lsh2=lsh/2.0;
 lsg2=2;
 
@@ -75,7 +79,7 @@ coff=corr/2;
 // m3 screw holes
 m3d=3.2; // extra size to cover 3d print thickness
 // m4 insert holes
-m4d=4.2;
+m4d=4.5;
 
 // threaded inserts: outer diameter 5mm, depth 4mm
 
@@ -89,7 +93,7 @@ difference() {
             cube([casew,caseh,cased],center=true);
 
             // space for inside
-            translate([0,0,wd]) { cube([casew - (2.0 * wd), caseh - (2.0 * wd), cased-wd],center=true); }
+            translate([0,0,wd]) { cube([casew - (2.0 * wd), caseh - (2.0 * wd), cased],center=true); }
             
             // rounded corners
             translate([-(casew2-corr),-(caseh2-corr),0]) { round_corner(cased+5, cord, -coff, -coff); }
@@ -149,11 +153,11 @@ difference() {
 
             // holes for split pin legs: 8mm apart, 3mm width, 
             // position so that we can bend the legs to the middle
-            translate([0,em-4,0]) { cube([3.1,0.4,cased+10], center=true); }
-            translate([0,em+4,0]) { cube([3.1,0.4,cased+10], center=true); }
+            translate([0,em-4,0]) { cube([3.5,0.6,cased+10], center=true); }
+            translate([0,em+4,0]) { cube([3.5,0.6,cased+10], center=true); }
             
-            // usb hole (see back.scad for positioning)
-            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 18-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            // usb hole (see back.scad for positioning, nneds to be x-flipped!)
+            translate([+(pcbw2-((33-1)+3)*2.54),+caseh2, 18-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
             
         }
 
@@ -183,8 +187,10 @@ difference() {
 
     // in test-mode generate only parts of the case
     translate([(test==true ? 0 : casew*10), 0, 0]) {
-        translate([casew2,0,0]) { cube([casew, caseh+10, cased+10], center=true); }
-        translate([0,-caseh2,0]) { cube([casew+10, caseh, cased+10], center=true); }
+        // +6 to have the full split-pins in there
+        //translate([casew2+6,0,0]) { cube([casew, caseh+10, cased+10], center=true); }
+        translate([casew2-10,0,0]) { cube([casew, caseh+10, cased+10], center=true); }
+        translate([0,22-caseh2,0]) { cube([casew+10, caseh, cased+10], center=true); }
     }
 }
 
@@ -200,14 +206,14 @@ module round_corner(h, d, x, y) {
 
 module insert_tube(h, d) {
     difference() {
-        cylinder(h=h, d=d+1, center=true);
+        cylinder(h=h, d=d+2.5, center=true);
         insert_tube_hole(h, d);
     }
 }
 
 module insert_tube_hole(h, d) {
-    // 0.2 is to leave some space to melt in the inserts
-    translate([0, 0, (h/2.0)-4]) { cylinder(h=4.2, d=d, center=false); }
+    // 0.25 is to leave some space to melt in the inserts
+    translate([0, 0, (h/2.0)-4.25]) { cylinder(h=5, d=d, center=false); }
 }
 
 
