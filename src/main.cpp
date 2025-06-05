@@ -57,7 +57,7 @@ void setup() {
 // run midi at full speed
 // don't poll the knobs too quickly though
 void loop() {
-    unsigned m=millis();
+    unsigned long m=millis();
     static unsigned long tk = 0;
     if (m - tk > 20) {
         knobs.tick();
