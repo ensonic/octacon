@@ -16,21 +16,34 @@ HslColor bitwigScheme[] = {
 };
 
 
-Leds::Leds(LedStripType *npb) : npb(npb) {}
+Leds::Leds(LedStripType *npb1, LedStripType *npb2) : npb1(npb1), npb2(npb2) {}
 
 void Leds::begin() {
-    npb->Begin();
+    npb1->Begin();
+    if (npb2 == nullptr) return;
+    npb2->Begin();
 }
 
 void Leds::SetColors(float brightness) {
-    for (uint16_t i=0; i<npb->PixelCount(); i++) {
-        auto hslc = bitwigScheme[i];
+    uint16_t bwci = 0;
+
+    for (uint16_t i=0; i<npb1->PixelCount(); i++) {
+        auto hslc = bitwigScheme[bwci];
         hslc.L = brightness;
-        npb->SetPixelColor(i, hslc);
+        npb1->SetPixelColor(i, hslc);
+        bwci++;
     }
-    npb->Show();
+    npb1->Show();
+    if (npb2 == nullptr) return;
+    for (uint16_t i=0; i<npb2->PixelCount(); i++) {
+        auto hslc = bitwigScheme[bwci];
+        hslc.L = brightness;
+        npb2->SetPixelColor(i, hslc);
+        bwci++;
+    }
+    npb2->Show();
 }
 
 // DEBUG: test RGB with the first 3 encoders
 //auto c = RgbColor(knobs.getValue(0)>>6,knobs.getValue(1)>>6,knobs.getValue(2)>>6);
-//npb->SetPixelColor(i, c);
+//npb1->SetPixelColor(i, c);

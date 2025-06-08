@@ -24,14 +24,13 @@ admux::Mux btn(admux::Pin(D10, INPUT_PULLUP, admux::PinType::Digital), addr);
 Knobs knobs(&vala, &valb, &btn);
 
 // LEDs
-// TODO: support 2nd strip on D2 for bottom row
-Leds leds(new LedStripType(numParams, D0));
+Leds leds(new LedStripType(numParams/2, D0),new LedStripType(numParams/2, D1));
 
 // OLEDs
 // GPIO18 : SCK Serial Clock)
 // GPIO19 : SDA (Master Out, Slave In = Serial Data Output)
-U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ D21, /* dc=*/ D22, /* reset=*/ D20);
-U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ D17, /* dc=*/ D22, /* reset=*/ D16);
+U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled1(U8G2_R0, /* cs=*/ D17, /* dc=*/ D22, /* reset=*/ D16);
+U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI oled2(U8G2_R0, /* cs=*/ D21, /* dc=*/ D22, /* reset=*/ D20);
 UI ui(&oled1, &oled2);
 
 // USB MIDI object
