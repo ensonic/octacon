@@ -76,13 +76,13 @@ difference() {
             // TODO: we might need so hole on the front side too
             // z: 14mm - (cased2 - wd)
             // x (just need the middle): startpin=33, -1 (to start a zero), +3 (to get middle of the 6 pins)
-            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 14-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            translate([-(pcbw2-((33-1)+3)*2.54),+caseh2, 15-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
 
             // debug header hole (in inch grid: 21-24)
             // 11.0 x 3.0 mm
             // the debug headers extend ~ 1 mm beyond the pcb
             // startpin=21, -1 (to start a zero), +2 (to get middle of the 4 pins)
-            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+4)]) { cube([11.0, wd*4, 3.0], center=true);}    
+            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+5)]) { cube([11.0, wd*4, 3.0], center=true);}
         }
 
         // tubes for case screws

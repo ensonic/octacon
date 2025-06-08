@@ -78,6 +78,8 @@ coff=corr/2;
 
 // m3 screw holes
 m3d=3.2; // extra size to cover 3d print thickness
+m3r=m3d/2;
+m3sd=.5+m3r;
 // m4 insert holes
 m4d=4.5;
 
@@ -106,6 +108,19 @@ difference() {
             translate([-pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
             translate([+pcbw4,  dho,0]) { cube([dw,dh,cased+5], center=true); }
             translate([+pcbw4+5,dho,.5]) { cube([dw,(dh*0.55),cased-1], center=true); }
+
+            // M3 holes for displays
+            // left
+            translate([-(pcbw4-(dbw2-m3sd)),-(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([-(pcbw4-(dbw2-m3sd)),+(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([-(pcbw4+(dbw2-m3sd)),-(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([-(pcbw4+(dbw2-m3sd)),+(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            // right
+            translate([+(pcbw4-(dbw2-m3sd)),-(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([+(pcbw4-(dbw2-m3sd)),+(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([+(pcbw4+(dbw2-m3sd)),-(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+            translate([+(pcbw4+(dbw2-m3sd)),+(dbh2-m3sd),0]) { cylinder(h=cased+5,r=m3r, center=true); }
+
 
             // leds
             // bottom row
@@ -157,7 +172,7 @@ difference() {
             translate([0,em+4,0]) { cube([3.5,0.6,cased+10], center=true); }
             
             // usb hole (see back.scad for positioning, nneds to be x-flipped!)
-            translate([+(pcbw2-((33-1)+3)*2.54),+caseh2, 18-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            translate([+(pcbw2-((33-1)+3)*2.54),+caseh2, 17-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
             
         }
 
