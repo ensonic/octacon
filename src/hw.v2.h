@@ -17,11 +17,12 @@
 #include <ui.h>
 
 // Knobs
-admux::Pinset addr(D13, D12, D11);
+admux::Pinset addr(D11, D12, D13);
 admux::Mux vala(admux::Pin(A0, INPUT, admux::PinType::Analog), addr);
 admux::Mux valb(admux::Pin(A1, INPUT, admux::PinType::Analog), addr);
 admux::Mux btn(admux::Pin(D10, INPUT_PULLUP, admux::PinType::Digital), addr);
-Knobs knobs(&vala, &valb, &btn);
+int8_t kmap[] = { 0,1,2,3,7,6,5,4 };
+Knobs knobs(&vala, &valb, &btn, kmap);
 
 // LEDs
 Leds leds(new LedStripType(numParams/2, D0),new LedStripType(numParams/2, D1));

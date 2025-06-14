@@ -21,7 +21,8 @@ admux::Pinset addr(D13, D12, D11);
 admux::Mux vala(admux::Pin(A0, INPUT, admux::PinType::Analog), addr);
 admux::Mux valb(admux::Pin(A1, INPUT, admux::PinType::Analog), addr);
 admux::Mux btn(admux::Pin(D10, INPUT_PULLUP, admux::PinType::Digital), addr);
-Knobs knobs(&vala, &valb, &btn);
+int8_t kmap[] = { 0,1,2,3,4,5,6,7 };
+Knobs knobs(&vala, &valb, &btn, kmap);
 
 // LEDs
 Leds leds(new LedStripType(numParams, D1));

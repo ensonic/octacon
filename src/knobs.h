@@ -13,7 +13,7 @@ using buttonCallback_t = void (*)(unsigned ix, int state);
 
 class Knobs {
 public:
-    Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn); 
+    Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn, int8_t *kmap); 
 
     void begin(void);
     void tick(void);
@@ -38,6 +38,8 @@ private:
     int buttons[numParams];
     // ignore value changes when we turn the know to prevent jumps
     unsigned long lastTs[numParams] = {0,};
+    // index mapping
+    int8_t *kmap;
 
     // moving averages for analog reads
     MAvg mavgA[numParams], mavgB[numParams];

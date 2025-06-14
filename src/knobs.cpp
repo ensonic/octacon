@@ -17,7 +17,7 @@ static int vami=ADC_100_PCT,vama=0;
 static int vbmi=ADC_100_PCT,vbma=0;
 */
 
-Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn) : vala(vala), valb(valb), btn(btn) {
+Knobs::Knobs(admux::Mux *vala,admux::Mux *valb, admux::Mux *btn, int8_t *kmap) : vala(vala), valb(valb), btn(btn) , kmap(kmap) {
     float threshold_pct = (float)threshold / (float)ADC_100_PCT;
     for (unsigned i = 0; i < numParams; i++) {
         pots[i].threshold = threshold_pct;
@@ -33,7 +33,9 @@ void Knobs::tick(void) {
     for (unsigned i = 0; i < numParams; i++) {
         // it is enough to drive one multiplexer address, as we use the same 
         // S{0,1,2} pins for all 3 multiplexers
-        vala->channel(i);
+        /*
+        */
+        vala->channel(kmap[i]);
         delayMicroseconds(1); // let  ADC settle
 
         auto va = mavgA[i].update(vala->read());
