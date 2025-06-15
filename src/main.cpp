@@ -30,6 +30,7 @@ static void buttonCB(unsigned int ix, int state) {
 void setup() {
     unsigned long ts0 = millis();
     leds.begin(); // call early to reset to black
+    mio.init(); // call early to ensure usb-id is set
 
     dbg.init();
     dbg.println("Setup start");
@@ -43,8 +44,6 @@ void setup() {
     knobs.attachButtonCallback(buttonCB);
     knobs.attachValueCallback(valueCB);
     knobs.begin();
-
-    mio.init();
 
     ui.begin();
 
