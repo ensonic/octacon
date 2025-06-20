@@ -3,7 +3,7 @@
 #include <leds.h>
 
 // Bitwig colors
-HslColor bitwigScheme[] = {
+HslColor bitwigColors[] = {
     HslColor(RgbColor(0xf4, 0x1b, 0x3e)), // red
     HslColor(RgbColor(0xff, 0x7f, 0x17)), // orange
     HslColor(RgbColor(0xfc, 0xeb, 0x23)), // yellow
@@ -15,6 +15,22 @@ HslColor bitwigScheme[] = {
     HslColor(RgbColor(0x65, 0xce, 0x92)), // turquoise
 };
 
+HslColor grayscale[] = {
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+    HslColor(RgbColor(0xff, 0xff, 0xff)),
+};
+
+HslColor *patterns[] {
+    bitwigColors,
+    grayscale,
+};
+static unsigned num_patterns = (sizeof(patterns)/sizeof(*patterns));
 
 Leds::Leds(LedStripType *npb1, LedStripType *npb2) : npb1(npb1), npb2(npb2) {}
 
@@ -24,11 +40,25 @@ void Leds::begin() {
     npb2->Begin();
 }
 
-void Leds::SetColors(float brightness) {
+void Leds::SetBrightness(float brightness) {
+    this->brightness = brightness;
+    SetColors();
+ }
+
+void Leds::SetPattern(unsigned pattern) {
+    if (pattern >= num_patterns) {
+        pattern = 0;
+    }
+    this->pattern = pattern;
+    SetColors();
+}
+
+void Leds::SetColors() {
     uint16_t bwci = 0;
+    HslColor *colors = patterns[pattern];
 
     for (uint16_t i=0; i<npb1->PixelCount(); i++) {
-        auto hslc = bitwigScheme[bwci];
+        auto hslc = colors[bwci];
         hslc.L = brightness;
         npb1->SetPixelColor(i, hslc);
         bwci++;
@@ -36,7 +66,7 @@ void Leds::SetColors(float brightness) {
     npb1->Show();
     if (npb2 == nullptr) return;
     for (uint16_t i=0; i<npb2->PixelCount(); i++) {
-        auto hslc = bitwigScheme[bwci];
+        auto hslc = colors[bwci];
         hslc.L = brightness;
         npb2->SetPixelColor(i, hslc);
         bwci++;

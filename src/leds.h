@@ -21,10 +21,16 @@ class Leds {
 
       void begin();
       // brightness from 0.0 to 1.0
-      void SetColors(float brightness);
+      void SetBrightness(float brightness);
+      // select one of the built-in (color) patterns
+      void SetPattern(unsigned pattern);
 
     private:
         LedStripType *npb1, *npb2;
+        unsigned pattern = 0;
+        float brightness = 0.05;
+
+        void SetColors();
 };
 
 #endif // SRC_LEDS_H

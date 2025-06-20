@@ -49,7 +49,7 @@ void setup() {
 
     capsense.begin();
 
-    leds.SetColors(0.05);
+    leds.SetBrightness(0.05);
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
@@ -72,7 +72,7 @@ void loop() {
         blink = !blink;
         tb = m;
         /* DEBUG
-        leds.SetColors((blink ? 0.2 : 0.3));
+        leds.SetBrightness((blink ? 0.2 : 0.3));
         */
     }
 
@@ -89,7 +89,7 @@ void loop() {
             touch_wait = 250;
             dbg.printf("CapSensor: touch    : %lu µs\n", csv);
             active = !active;
-            leds.SetColors(active ? 0.3 : 0.05);
+            leds.SetBrightness(active ? 0.3 : 0.05);
         } else if (touched && csv < 250) {
             touched = false;
             touch_wait = 250;
