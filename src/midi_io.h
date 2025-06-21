@@ -18,6 +18,7 @@ enum class SysExCmd : byte {
     ParamName,      // receive parameter names
     PrettyValue,    // receive human readable parameter values
     DawSync,        // daw attached?
+    LedPattern,     // chose on of teh supported led (color) patterns
 };
 
 class MidiIO {

@@ -2,10 +2,12 @@
 
 #include <debug.h>
 #include <knobs.h>
+#include <leds.h>
 #include <midi_io.h>
 #include <ui.h>
 
 extern Debug dbg;
+extern Leds leds;
 extern UI ui;
 extern Knobs knobs;
 
@@ -51,7 +53,7 @@ static void midiSysExPrettyValue(byte *data, unsigned size) {
         dbg.printf("sysexcmd-%u too short\n", SysExCmd::PrettyValue);
         return;
     }
-     ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
+    ui.setPrettyValue(data[0], (char *)(&data[2]), data[1]);
 }
 
 static void midiSysExDawSync(byte *data, unsigned size) {
@@ -60,7 +62,16 @@ static void midiSysExDawSync(byte *data, unsigned size) {
         dbg.printf("sysexcmd-%u too short\n", SysExCmd::DawSync);
         return;
     }
-     ui.enableExtInfo(data[0]>0);
+    ui.enableExtInfo(data[0]>0);
+}
+
+static void midiSysExLedPattern(byte *data, unsigned size) {
+    // on/off
+    if (size < 1) {
+        dbg.printf("sysexcmd-%u too short\n", SysExCmd::LedPattern);
+        return;
+    }
+    leds.SetPattern(data[0]);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {
@@ -85,6 +96,9 @@ static void midiSysExCB(byte * data, unsigned size) {
             break;
         case SysExCmd::DawSync:
             midiSysExDawSync(data, size);
+            break;
+        case SysExCmd::LedPattern:
+            midiSysExLedPattern(data, size);
             break;
         default:
             dbg.println("sysex: unknown cmd");

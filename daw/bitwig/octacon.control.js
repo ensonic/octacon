@@ -1,5 +1,5 @@
 // Bitwig controllerscript for octacon
-// cp octacon.control.js "$HOME/Bitwig Studio/Controller Scripts/"
+// cp daw/bitwig/octacon.control.js "$HOME/Bitwig Studio/Controller Scripts/"
 //
 // api-docs: /opt/bitwig-studio/resources/ControllerScripts/api/midi.js
 
@@ -15,19 +15,24 @@ host.addDeviceNameBasedDiscoveryPair(["Octacon MIDI 1"], ["Octacon MIDI 1"]);
 
 const SYSEX_BEGIN = "F0 7D ";
 const SYSEX_END = " F7";
+// Daw-Mode (on/off)
 const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END
 const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END
 const SYSEX_RATE = 100
 
 const CC_MSB_ValueBase = 9;
 const CC_LSB_ValueBase = 9 + 32;
+const CC_ButtonBase = 9 + 8;
 
+const MODE_CTRL = 0;
+const MODE_NAV = 1
 
 let remoteControlCursor;
 let outPort;
 let midiQueue = [];
 let displayValues = [];
 let values = [0, 0, 0, 0, 0, 0, 0, 0];
+let mode = MODE_CTRL;
 
 function init() {
 	host.getMidiInPort(0).setMidiCallback(onMidi0);
@@ -112,16 +117,35 @@ function onMidi0(status, data1, data2) {
 		return true;
 	}
 	let ix = -1
+	let isValue = false
 	if (data1 >= CC_MSB_ValueBase && data1 < CC_MSB_ValueBase+8) {
 		ix = data1 - CC_MSB_ValueBase;
 		values[ix] = data2 << 7;
+		isValue = true
 	}
 	if (data1 >= CC_LSB_ValueBase && data1 < CC_LSB_ValueBase+8) {
 		ix = data1 - CC_LSB_ValueBase;
 		values[ix] += data2;
+		isValue = true
+	}
+	if (data1 >= CC_ButtonBase && data1 < CC_ButtonBase+8) {
+		ix = data1 - CC_ButtonBase;
 	}
 	if (ix >= 0) {
-		remoteControlCursor.getParameter(ix).value().set(values[ix]/16384.0);
+		if (isValue) {
+			// handle know value
+			remoteControlCursor.getParameter(ix).value().set(values[ix]/16384.0);
+		} else {
+			// handle button press (0 pressed, 64 released)
+			// println("button[" + ix + "]=" + data2);
+			if (data2 > 0) {
+				mode = 1 - mode;
+				// toggle led-color on device
+				let modestr = mode.toString(16).padStart(2, '0');
+				outPort.sendSysex(SYSEX_BEGIN + "03 " + modestr + SYSEX_END)
+				// TODO: implement modes 
+			}
+		}
 	}
 	return true;
 }
