@@ -63,6 +63,10 @@ static void midiSysExDawSync(byte *data, unsigned size) {
         return;
     }
     ui.enableExtInfo(data[0]>0);
+    if (!data[0]) {
+        // reset led pattern when exiting daw-mode
+        leds.SetPattern(0);
+    }
 }
 
 static void midiSysExLedPattern(byte *data, unsigned size) {
