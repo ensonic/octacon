@@ -43,7 +43,7 @@ private:
     static const unsigned numParams = 8;
     bool extInfo = false;
     UIParam p[numParams] = { {"","",0}, };
-    char info1[30],info2[30]; // info text in the middle ~ 26 chars per display
+    char info1[50],info2[50]; // info text in the middle ~ 26 chars per display
     
     void initPage(U8G2 *d);
     void drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, char *str);

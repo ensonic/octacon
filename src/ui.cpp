@@ -87,22 +87,44 @@ void UI::enableExtInfo(bool enable) {
 
 void UI::setInfo(char *str) {
     // fill with zeros
-    int li = sizeof(info1);
-    memset(info1, 0, li);
-    memset(info2, 0, li);
-    li--;
+    int li = sizeof(info1) - 1;
 
     // copy string into both display parts
-    // TODO: use: auto w = d1->getStrWidth(str); ?
     int ls = strlen(str);
-    int l = min(li, ls);
-    memcpy(info1, str, l);
-    if (ls > li) {
-        ls -= l;
-        l = min(li, ls);
-        memcpy(info2, &str[l], l);
+    int sp = 0, dp = 0;
+    while(true) {
+        info1[dp]=str[sp];
+        if (d1->getStrWidth(info1)>=128) {
+            info1[dp]='\0';
+            break;
+        }
+        dp++; sp++;
+        if (sp == ls) {
+            break;
+        }
+        if (dp == li) {
+            info1[dp]='\0';
+            break; // should not happen, in that case should have bigger buffers)
+        }
     }
-
+    if (sp < ls) {
+        dp = 0;
+        while(true) {
+            info2[dp]=str[sp];
+            if (d1->getStrWidth(info2)>=128) {
+                info2[dp]='\0';
+                break;
+            }
+            dp++; sp++;
+            if (sp == ls) {
+                break;
+            }
+            if (dp == li) {
+                info1[dp]='\0';
+                break; // should not happen, in that case should have bigger buffers)
+            }
+        }
+    }
     draw(0);
     draw(2);
 }
