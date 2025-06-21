@@ -1,15 +1,18 @@
 # octacon
-A midi controller tailored for bitwig with 8 encoders, 8 knobs and displays. Still pretty much WIP.
+A midi controller tailored for bitwig with 8 encoders, 8 knobs and displays.
 
-![wip image of the day](/docs/img/20250325.proto_build.jpg)
+![wip image of the day](/docs/img/20250614.v3_build.jpg)
 
 ## hardware
 
 * raspberry pico 2
-* 8 digital encoders with buttons EC11 (need to find a better choice)
-* 3 CD74HC4051 analog muxers
-* 8 NeoPixel Diffused 5mm Through-Hole LEDs
+* 8 endless dual wiper potentiometers with buttons (RV142FPF-40B1-15F-0B20K-004)
+* 3 analog multiplexers (e.g. CD74HC4051)
+* 8 NeoPixel LEDs (WS2812x)
 * 2 128x64 OLED displays connected via SPI
+* 1 capacitive touch control
+
+(pcb files common soon)
 
 ## enclosure
 
