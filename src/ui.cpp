@@ -40,9 +40,9 @@ void UI::draw(unsigned ix) {
         }
     }
     if (!(ix & 2)) {
-        this->drawPage(d2, p[0], p[1], p[4], p[5]);
+        this->drawPage(d2, p[0], p[1], p[4], p[5], info1);
     } else {
-        this->drawPage(d1, p[2], p[3], p[6], p[7]);
+        this->drawPage(d1, p[2], p[3], p[6], p[7], info2);
     }
 }
 
@@ -85,6 +85,28 @@ void UI::enableExtInfo(bool enable) {
     draw(2);
 }
 
+void UI::setInfo(char *str) {
+    // fill with zeros
+    int li = sizeof(info1);
+    memset(info1, 0, li);
+    memset(info2, 0, li);
+    li--;
+
+    // copy string into both display parts
+    // TODO: use: auto w = d1->getStrWidth(str); ?
+    int ls = strlen(str);
+    int l = min(li, ls);
+    memcpy(info1, str, l);
+    if (ls > li) {
+        ls -= l;
+        l = min(li, ls);
+        memcpy(info2, &str[l], l);
+    }
+
+    draw(0);
+    draw(2);
+}
+
 // private impl
 
 void UI::initPage(U8G2 *d) {
@@ -106,12 +128,14 @@ void UI::initPage(U8G2 *d) {
     d->setFontMode(1); // make transparent (no bg)
 }
 
-void UI::drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3) {
+void UI::drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, char *str) {
     if (!d) return;
 
     d->clearBuffer();
     drawColumn(d, 0, p0, p2);
-    drawColumn(d, 64, p1, p3);
+    drawColumn(d, 65, p1, p3);
+    d->setClipWindow(0, 32-4, 127, 32+4);
+    d->drawStr(0, 32+3, str);
     d->updateDisplay(); // display refresh: 3059 µs
     // TODO: if we update from the callback, we maybe send a bit mask for which value changed
     // https://github.com/olikraus/u8g2/wiki/u8g2reference#updatedisplayarea
@@ -126,20 +150,20 @@ void UI::drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1) {
     d->setDrawColor(1);
     d->setMaxClipWindow();
     // value box
-    d->drawFrame(x, 0, 63, 15);
-    d->drawBox(x, 1, p0.value/2, 14);
-    d->drawFrame(x, 48, 63, 15);
-    d->drawBox(x, 49, p1.value/2, 14);
+    d->drawFrame(x, 0, 63, 14);
+    d->drawBox(x, 1, p0.value/2, 13);
+    d->drawFrame(x, 49, 63, 14);
+    d->drawBox(x, 50, p1.value/2, 13);
     // param name
-    d->setClipWindow(x, 16, x + w, 26);
-    d->drawStr(x, 26, p0.name.c_str());  // 26 = 16 + 8 + 2
-    d->setClipWindow(x, 35, x + w, 45);
-    d->drawStr(x, 45, p1.name.c_str());
+    d->setClipWindow(x, 14, x + w, 24);
+    d->drawStr(x, 24, p0.name.c_str());  // 24 = 16 + 7 + 1
+    d->setClipWindow(x, 36, x + w, 46);
+    d->drawStr(x, 46, p1.name.c_str());
     // pretty name
     x++; w--;
     d->setDrawColor(2);
     d->setClipWindow(x, 2, x + w, 4+8);
     d->drawStr(x+1, 2+8, p0.prettyvalue.c_str());
-    d->setClipWindow(x, 50, x + w, 52+8);
-    d->drawStr(x+1,50+8, p1.prettyvalue.c_str());  
+    d->setClipWindow(x, 51, x + w, 53+8);
+    d->drawStr(x+1,51+8, p1.prettyvalue.c_str());
 }

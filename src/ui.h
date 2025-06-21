@@ -36,15 +36,17 @@ public:
     void setPrettyValue(unsigned ix, char *str, unsigned len);
     void setValue(unsigned ix, unsigned value);
     void enableExtInfo(bool enable);
+    void setInfo(char *str);
 
 private:
     U8G2 *d1, *d2;
     static const unsigned numParams = 8;
     bool extInfo = false;
     UIParam p[numParams] = { {"","",0}, };
+    char info1[30],info2[30]; // info text in the middle ~ 26 chars per display
     
     void initPage(U8G2 *d);
-    void drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3);
+    void drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, char *str);
     void drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1);
 };
 
