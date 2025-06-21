@@ -65,7 +65,7 @@ static void midiSysExDawSync(byte *data, unsigned size) {
     ui.enableExtInfo(data[0]>0);
     if (!data[0]) {
         // reset led pattern when exiting daw-mode
-        leds.SetPattern(0);
+        leds.setPattern(0);
     }
 }
 
@@ -75,7 +75,7 @@ static void midiSysExLedPattern(byte *data, unsigned size) {
         dbg.printf("sysexcmd-%u too short\n", SysExCmd::LedPattern);
         return;
     }
-    leds.SetPattern(data[0]);
+    leds.setPattern(data[0]);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {

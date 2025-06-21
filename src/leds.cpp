@@ -40,20 +40,20 @@ void Leds::begin() {
     npb2->Begin();
 }
 
-void Leds::SetBrightness(float brightness) {
+void Leds::setBrightness(float brightness) {
     this->brightness = brightness;
-    SetColors();
+    setColors();
  }
 
-void Leds::SetPattern(unsigned pattern) {
+void Leds::setPattern(unsigned pattern) {
     if (pattern >= num_patterns) {
         pattern = 0;
     }
     this->pattern = pattern;
-    SetColors();
+    setColors();
 }
 
-void Leds::SetColors() {
+void Leds::setColors() {
     uint16_t bwci = 0;
     HslColor *colors = patterns[pattern];
 
