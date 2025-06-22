@@ -45,11 +45,10 @@ void setup() {
     knobs.attachValueCallback(valueCB);
     knobs.begin();
 
-    ui.begin();
-
     capsense.begin();
 
     leds.setBrightness(0.05);
+    ui.begin();
     dbg.printf("Setup done: %u ms\n", millis()-ts0);
 }
 
