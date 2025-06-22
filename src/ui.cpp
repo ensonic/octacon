@@ -85,45 +85,37 @@ void UI::enableExtInfo(bool enable) {
     draw(2);
 }
 
-void UI::setInfo(char *str) {
-    // fill with zeros
+void UI::setInfo(char *str, unsigned len) {
     int li = sizeof(info1) - 1;
 
     // copy string into both display parts
-    int ls = strlen(str);
     int sp = 0, dp = 0;
     while(true) {
+        if (sp == len || dp == li) {
+            break;
+        }
         info1[dp]=str[sp];
         if (d1->getStrWidth(info1)>=128) {
             info1[dp]='\0';
             break;
         }
         dp++; sp++;
-        if (sp == ls) {
-            break;
-        }
-        if (dp == li) {
-            info1[dp]='\0';
-            break; // should not happen, in that case should have bigger buffers)
-        }
     }
-    if (sp < ls) {
+    info1[dp]='\0';
+    if (sp < len) {
         dp = 0;
         while(true) {
+            if (sp == len || dp == li) {
+                break;
+            }
             info2[dp]=str[sp];
             if (d1->getStrWidth(info2)>=128) {
                 info2[dp]='\0';
                 break;
             }
             dp++; sp++;
-            if (sp == ls) {
-                break;
-            }
-            if (dp == li) {
-                info1[dp]='\0';
-                break; // should not happen, in that case should have bigger buffers)
-            }
         }
+        info2[dp]='\0';
     }
     draw(0);
     draw(2);

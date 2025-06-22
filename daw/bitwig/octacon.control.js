@@ -34,14 +34,40 @@ let displayValues = [];
 let values = [0, 0, 0, 0, 0, 0, 0, 0];
 let mode = MODE_CTRL;
 
+let info = {
+	track: "",
+	device: "",
+	page: "",
+};
+
 function init() {
 	host.getMidiInPort(0).setMidiCallback(onMidi0);
 	outPort = host.getMidiOutPort(0);
 	outPort.sendSysex(SYSEX_HELLO);
 
 	// follows UI selection
-	let cursorDevice = host.createCursorTrack(0, 0).createCursorDevice();
+	let cursorTrack = host.createCursorTrack(0, 0)
+	let cursorDevice = cursorTrack.createCursorDevice();
 	remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(8);
+
+	// subscribe to track name
+	let trackNameFn = onNameChanged.bind(this, "track");
+	let trackName = cursorTrack.name();
+	trackName.markInterested();
+	trackName.addValueObserver(trackNameFn);
+
+	// subscribe to device name
+	let deviceNameFn = onNameChanged.bind(this, "device");
+	let deviceName = cursorDevice.name();
+	deviceName.markInterested();
+	deviceName.addValueObserver(deviceNameFn);
+
+	// subscribe to controller page name
+	// TODO: this works for device/preset-pages, but not for module/modulator pages ??
+	let pageNameFn = onNameChanged.bind(this, "page");
+	let pageName = remoteControlCursor.getName();
+	pageName.markInterested();
+	pageName.addValueObserver(pageNameFn);
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
 		let valueFn = onValueChange.bind(this, j);
@@ -88,6 +114,28 @@ function onNameChange(index, value) {
 function onDisplayValueChange(index, value) {
 	displayValues[index].next = value;
 	//println("Id: " + index + " PrettyValue: " + value);
+}
+
+function onNameChanged(key, value) {
+	println("Name[" + key +"]: " + value);
+	info[key] = value;
+	sendInfoString();
+}
+
+function sendInfoString() {
+	// rebuild full name & send
+	let value = info.track + "/" + info.device + "/" + info.page
+	println("Info: " + value);
+
+	let len = value.length.toString(16).padStart(2, '0');
+	value = value.replace(/[^\x00-\x7F]/g, "").trim();
+	let name = value.toHex(value.length)
+	midiQueue.push({
+		type: 'sysex',
+		// 04 + <len> + <name>
+		data: '04 ' + len + name,
+	})
+
 }
 
 function queueDisplayValueChanges() {

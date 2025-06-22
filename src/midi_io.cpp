@@ -70,12 +70,21 @@ static void midiSysExDawSync(byte *data, unsigned size) {
 }
 
 static void midiSysExLedPattern(byte *data, unsigned size) {
-    // on/off
+    // pattern
     if (size < 1) {
         dbg.printf("sysexcmd-%u too short\n", SysExCmd::LedPattern);
         return;
     }
     leds.setPattern(data[0]);
+}
+
+static void midiSysExInfo(byte *data, unsigned size) {
+    // length, data
+    if (size < 1) {
+        dbg.printf("sysexcmd-%u too short\n", SysExCmd::Info);
+        return;
+    }
+    ui.setInfo((char *)(&data[1]), data[0]);
 }
 
 static void midiSysExCB(byte * data, unsigned size) {
@@ -103,6 +112,9 @@ static void midiSysExCB(byte * data, unsigned size) {
             break;
         case SysExCmd::LedPattern:
             midiSysExLedPattern(data, size);
+            break;
+        case SysExCmd::Info:
+            midiSysExInfo(data, size);
             break;
         default:
             dbg.println("sysex: unknown cmd");
