@@ -64,8 +64,9 @@ static void midiSysExDawSync(byte *data, unsigned size) {
     }
     ui.enableExtInfo(data[0]>0);
     if (!data[0]) {
-        // reset led pattern when exiting daw-mode
+        // reset addition modes when exiting daw-mode
         leds.setPattern(0);
+        ui.setInfo("", 0);
     }
 }
 
