@@ -50,24 +50,17 @@ function init() {
 	let cursorDevice = cursorTrack.createCursorDevice();
 	remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(8);
 
-	// subscribe to track name
-	let trackNameFn = onNameChanged.bind(this, "track");
-	let trackName = cursorTrack.name();
-	trackName.markInterested();
-	trackName.addValueObserver(trackNameFn);
-
-	// subscribe to device name
-	let deviceNameFn = onNameChanged.bind(this, "device");
-	let deviceName = cursorDevice.name();
-	deviceName.markInterested();
-	deviceName.addValueObserver(deviceNameFn);
-
-	// subscribe to controller page name
-	// TODO: this works for device/preset-pages, but not for module/modulator pages ??
-	let pageNameFn = onNameChanged.bind(this, "page");
-	let pageName = remoteControlCursor.getName();
-	pageName.markInterested();
-	pageName.addValueObserver(pageNameFn);
+	let namesToSub = [
+		{ name: "track", value: cursorTrack.name()},
+		{ name: "device", value: cursorDevice.name()},
+		// TODO: this works for device/preset-pages, but not for module/modulator pages ??
+		// e.g. open Polymer and select "Union" or "Vibrato"
+		{ name: "page", value: remoteControlCursor.getName()}
+	];
+	for (const nts of namesToSub) {
+		nts.value.markInterested();
+		nts.value.addValueObserver(onNameChanged.bind(this, nts.name));
+	} 
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
 		let valueFn = onValueChange.bind(this, j);
