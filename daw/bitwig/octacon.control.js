@@ -63,15 +63,12 @@ function init() {
 	} 
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
-		let valueFn = onValueChange.bind(this, j);
-		let nameFn = onNameChange.bind(this, j);
-		let displayValueFn = onDisplayValueChange.bind(this, j);
 		let param = remoteControlCursor.getParameter(j);
 		param.markInterested();
 		param.setIndication(true);
-		param.value().addValueObserver(16384, valueFn);
-		param.name().addValueObserver(nameFn)
-		param.displayedValue().addValueObserver(displayValueFn);
+		param.value().addValueObserver(16384, onValueChange.bind(this, j));
+		param.name().addValueObserver(onNameChange.bind(this, j))
+		param.displayedValue().addValueObserver(onDisplayValueChange.bind(this, j));
 		displayValues[j] = { prev: "", next: "" };
 	}
 
