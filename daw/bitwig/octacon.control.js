@@ -1,4 +1,4 @@
-// Bitwig controllerscript for octacon
+// Bitwig controller-script for octacon
 // cp daw/bitwig/octacon.control.js "$HOME/Bitwig Studio/Controller Scripts/"
 //
 // api-docs: /opt/bitwig-studio/resources/ControllerScripts/api/midi.js
@@ -27,12 +27,16 @@ const CC_ButtonBase = 9 + 8;
 const MODE_CTRL = 0;
 const MODE_NAV = 1
 
+let cursorTrack
+let cursorDevice
 let remoteControlCursor;
 let outPort;
 let midiQueue = [];
 let displayValues = [];
 let values = [0, 0, 0, 0, 0, 0, 0, 0];
 let mode = MODE_CTRL;
+let pageNames = [];
+let pageIx = 0;
 
 let info = {
 	track: "",
@@ -46,8 +50,8 @@ function init() {
 	outPort.sendSysex(SYSEX_HELLO);
 
 	// follows UI selection
-	let cursorTrack = host.createCursorTrack(0, 0)
-	let cursorDevice = cursorTrack.createCursorDevice();
+	cursorTrack = host.createCursorTrack(0, 0)
+	cursorDevice = cursorTrack.createCursorDevice();
 	remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(8);
 
 	let namesToSub = [
@@ -59,16 +63,42 @@ function init() {
 	];
 	for (const nts of namesToSub) {
 		nts.value.markInterested();
-		nts.value.addValueObserver(onNameChanged.bind(this, nts.name));
+		nts.value.addValueObserver(onInfoNameChange.bind(this, nts.name));
 	} 
+
+	// complex workaround to get all page-names (see TODO above)
+	let pn = remoteControlCursor.pageNames()
+	pn.markInterested()
+	pn.addValueObserver(function(value) {
+		pageNames = [];
+		for(var j = 0; j < value.length; j++) {
+         	pageNames[j] = value[j];
+     	}
+		if (typeof pageNames[pageIx] !== 'undefined') {
+			info.page = pageNames[pageIx];
+			println("Name[page]: " + pageNames[pageIx]);
+			sendInfoString();
+		}
+		//println("pages: " + pageNames.join(","))
+	})
+	let spi = remoteControlCursor.selectedPageIndex()
+	spi.markInterested()
+	spi.addValueObserver(function(value) { 
+		pageIx = value;
+		if (typeof pageNames[pageIx] !== 'undefined') {
+			info.page = pageNames[pageIx];
+			println("Name[page]: " + pageNames[pageIx]);
+			sendInfoString();
+		}
+	})
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
 		let param = remoteControlCursor.getParameter(j);
 		param.markInterested();
 		param.setIndication(true);
-		param.value().addValueObserver(16384, onValueChange.bind(this, j));
-		param.name().addValueObserver(onNameChange.bind(this, j))
-		param.displayedValue().addValueObserver(onDisplayValueChange.bind(this, j));
+		param.value().addValueObserver(16384, onParamValueChange.bind(this, j));
+		param.name().addValueObserver(onParamNameChange.bind(this, j))
+		param.displayedValue().addValueObserver(onParamDisplayedValueChange.bind(this, j));
 		displayValues[j] = { prev: "", next: "" };
 	}
 
@@ -78,7 +108,7 @@ function init() {
 	println("octacon initialized!");
 }
 
-function onValueChange(index, value) {
+function onParamValueChange(index, value) {
 	//let param = remoteControlCursor.getParameter(index);
 	//println("Id: " + index + " PrettyValue: " + param.displayedValue().get());
 	midiQueue.push({
@@ -88,7 +118,7 @@ function onValueChange(index, value) {
 	});
 }
 
-function onNameChange(index, value) {
+function onParamNameChange(index, value) {
 	//println("Id: " + index + " Name: " + value);
 	let ix = index.toString(16).padStart(2, '0');
 	let len = value.length.toString(16).padStart(2, '0');
@@ -101,12 +131,15 @@ function onNameChange(index, value) {
 	})
 }
 
-function onDisplayValueChange(index, value) {
+function onParamDisplayedValueChange(index, value) {
 	displayValues[index].next = value;
 	//println("Id: " + index + " PrettyValue: " + value);
 }
 
-function onNameChanged(key, value) {
+function onInfoNameChange(key, value) {
+	if (value == "" ) {
+		return;
+	}
 	println("Name[" + key +"]: " + value);
 	info[key] = value;
 	sendInfoString();
@@ -125,7 +158,6 @@ function sendInfoString() {
 		// 04 + <len> + <name>
 		data: '04 ' + len + name,
 	})
-
 }
 
 function queueDisplayValueChanges() {
@@ -181,7 +213,7 @@ function onMidi0(status, data1, data2) {
 				// toggle led-color on device
 				let modestr = mode.toString(16).padStart(2, '0');
 				outPort.sendSysex(SYSEX_BEGIN + "03 " + modestr + SYSEX_END)
-				// TODO: implement modes 
+				// TODO: implement modes
 			}
 		}
 	}
