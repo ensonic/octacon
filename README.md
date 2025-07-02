@@ -12,11 +12,12 @@ A midi controller tailored for bitwig with 8 encoders, 8 knobs and displays.
 * 2 128x64 OLED displays connected via SPI
 * 1 capacitive touch control
 
-(pcb files common soon)
+The `pcb` subfolder has the the schematics and the pcb files for [easyeda](https://easyeda.com/).
+You should be able to import them into the Std Edition.
 
 ## enclosure
 
-The 3d subfolder has openScad files and rendered STL for 3d printing.
+The `3d` subfolder has openScad files and rendered STL for 3d printing.
 
 The front_test.scad is mostly for prototyping:
 Front view | Side View
