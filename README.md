@@ -58,6 +58,8 @@ The following commands are implemented:
   * connected: 0 = off, anything else = on
   * when off, parameter names and pretty values are generated
 
+(TODO: document additional cmds)
+
 # Code
 
 The code uses [platformIO](https://platformio.org/). See [platformio.ini](platformio.ini) for the used libraries.
@@ -69,11 +71,11 @@ pio test
 
 # Debugging
 
-Since we're using usb-midi, we can't use it for serial logging. I am simply using a nodemcu esp8266 as serial2. On the nodemcu connect EN to GND to disaled the ESP. Then  connenct the nodemcu to the pico2 as follow:
+Since we're using usb-midi, we can't use it for serial logging at the same time. I am simply using a nodemcu esp8266 as serial2. On the nodemcu connect EN to GND to disable the ESP. Then connenct the nodemcu to the pico2 as follow:
 nodemcu esp8266 | raspberry pico2 
 :--------------:|:---------------:
 GND  | GND
-3.3V | 3.3V
+3.3V | 3.3V (optional)
 TX   | UART1 TX, pin 6 
 RX   | UART1 RX, pin 7
 
