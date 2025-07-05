@@ -16,25 +16,34 @@ host.addDeviceNameBasedDiscoveryPair(["Octacon MIDI 1"], ["Octacon MIDI 1"]);
 const SYSEX_BEGIN = "F0 7D ";
 const SYSEX_END = " F7";
 // Daw-Mode (on/off)
-const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END
-const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END
-const SYSEX_RATE = 100
+const SYSEX_HELLO = SYSEX_BEGIN + "02 01" + SYSEX_END;
+const SYSEX_BYE = SYSEX_BEGIN + "02 00" + SYSEX_END;
+const SYSEX_RATE = 100;
 
 const CC_MSB_ValueBase = 9;
 const CC_LSB_ValueBase = 9 + 32;
 const CC_ButtonBase = 9 + 8;
+function Mode() {
+	this.values = [0, 0, 0, 0, 0, 0, 0, 0];
+}
+ctrlMode = new Mode();
+navMode = new Mode();
 
 const MODE_CTRL = 0;
-const MODE_NAV = 1
+const MODE_NAV = 1;
+//let modes = [new CtrlMode(), new NavMode()];
+let modes = [ctrlMode, navMode];
+let mode = MODE_CTRL;
 
-let cursorTrack
-let cursorDevice
+let cursorTrack;
+let cursorDevice;
 let remoteControlCursor;
+let deviceBank;
+let trackBank;
 let outPort;
 let midiQueue = [];
 let displayValues = [];
 let values = [0, 0, 0, 0, 0, 0, 0, 0];
-let mode = MODE_CTRL;
 let pageNames = [];
 let pageIx = 0;
 
@@ -49,8 +58,8 @@ function init() {
 	outPort = host.getMidiOutPort(0);
 	outPort.sendSysex(SYSEX_HELLO);
 
-	// follows UI selection
-	cursorTrack = host.createCursorTrack(0, 0)
+	// active device that follows UI selection
+	cursorTrack = host.createCursorTrack(0, 0);
 	cursorDevice = cursorTrack.createCursorDevice();
 	remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(8);
 
@@ -67,9 +76,7 @@ function init() {
 	} 
 
 	// complex workaround to get all page-names (see TODO above)
-	let pn = remoteControlCursor.pageNames()
-	pn.markInterested()
-	pn.addValueObserver(function(value) {
+	remoteControlCursor.pageNames().addValueObserver(function(value) {
 		pageNames = [];
 		for(var j = 0; j < value.length; j++) {
          	pageNames[j] = value[j];
@@ -81,15 +88,41 @@ function init() {
 		}
 		//println("pages: " + pageNames.join(","))
 	})
-	let spi = remoteControlCursor.selectedPageIndex()
-	spi.markInterested()
-	spi.addValueObserver(function(value) { 
+	remoteControlCursor.selectedPageIndex().addValueObserver(function(value) { 
 		pageIx = value;
 		if (typeof pageNames[pageIx] !== 'undefined') {
 			info.page = pageNames[pageIx];
 			println("Name[page]: " + pageNames[pageIx]);
 			sendInfoString();
 		}
+	})
+
+	// navigation along the device strip with one device active
+	// TODO: also checkout cursorDevice.createSiblingsDeviceBank(1)/createLayerBank()/createDrumPadBank()
+	deviceBank = cursorDevice.deviceChain().createDeviceBank(1);
+	deviceBank.itemCount().addValueObserver(function(value) {
+		println("device-chain-length: " + value);
+	})
+	cursorDevice.position().addValueObserver(function(value) {
+		if (value < 0) {
+			return;
+		}
+		println("cursor-device-pos: " + value);
+		deviceBank.scrollIntoView(value+1);
+	})
+
+	// active track that follows UI selection
+	trackBank = host.createTrackBank(1,1,0, true)
+	trackBank.itemCount().addValueObserver(function(value) {
+		println("track-bank-length: " + value);
+	})
+	cursorTrack.position().addValueObserver(function(value) {
+		if (value < 0) {
+			return;
+		}
+		// this counts different that the flattened trackBank
+		println("cursor-track-pos: " + value);
+		// trackBank.scrollIntoView(value+1);
 	})
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
@@ -99,6 +132,9 @@ function init() {
 		param.value().addValueObserver(16384, onParamValueChange.bind(this, j));
 		param.name().addValueObserver(onParamNameChange.bind(this, j))
 		param.displayedValue().addValueObserver(onParamDisplayedValueChange.bind(this, j));
+		/* also send how many ticks we have
+		param.discreteValueCount().addValueObserver(...)
+		*/
 		displayValues[j] = { prev: "", next: "" };
 	}
 
@@ -148,7 +184,7 @@ function onInfoNameChange(key, value) {
 function sendInfoString() {
 	// rebuild full name & send
 	let value = info.track + "/" + info.device + "/" + info.page
-	println("Info: " + value);
+	// println("Info: " + value);
 
 	let len = value.length.toString(16).padStart(2, '0');
 	value = value.replace(/[^\x00-\x7F]/g, "").trim();
@@ -186,42 +222,28 @@ function onMidi0(status, data1, data2) {
 	if (!isChannelController(status)) {
 		return true;
 	}
-	let ix = -1
-	let isValue = false
-	if (data1 >= CC_MSB_ValueBase && data1 < CC_MSB_ValueBase+8) {
-		ix = data1 - CC_MSB_ValueBase;
-		values[ix] = data2 << 7;
-		isValue = true
-	}
-	if (data1 >= CC_LSB_ValueBase && data1 < CC_LSB_ValueBase+8) {
-		ix = data1 - CC_LSB_ValueBase;
-		values[ix] += data2;
-		isValue = true
-	}
-	if (data1 >= CC_ButtonBase && data1 < CC_ButtonBase+8) {
-		ix = data1 - CC_ButtonBase;
-	}
-	if (ix >= 0) {
-		if (isValue) {
-			// handle know value
-			remoteControlCursor.getParameter(ix).value().set(values[ix]/16384.0);
-		} else {
-			// handle button press (0 pressed, 64 released)
-			// println("button[" + ix + "]=" + data2);
-			if (data2 > 0) {
-				mode = 1 - mode;
-				// toggle led-color on device
-				let modestr = mode.toString(16).padStart(2, '0');
-				outPort.sendSysex(SYSEX_BEGIN + "03 " + modestr + SYSEX_END)
-				// TODO: implement modes
-			}
-		}
+	const [ix, isValue] = modes[mode].onMidi0(data1,data2);
+	if (ix >= 0 && !isValue && data2 > 0) {
+		modeChange();
 	}
 	return true;
 }
 
+function modeChange() {
+	mode = 1 - mode;
+	// toggle led-color on device
+	let modestr = mode.toString(16).padStart(2, '0');
+	outPort.sendSysex(SYSEX_BEGIN + "03 " + modestr + SYSEX_END);
+	// update octacon state
+	for (i = 0;i < 8; i++) {
+		// onParamValueChange(i, modes[mode].values[i])
+		// onParamNameChange(i, ...)
+		// queueDisplayValueChanges(i, ...)
+	}
+}
+
 function flush() {
-   for (let m of midiQueue) {
+    for (let m of midiQueue) {
 		switch (m.type) {
 			case 'cc': {
 				outPort.sendMidi(0xb0, CC_MSB_ValueBase + m.ix, m.value >> 7);
@@ -242,3 +264,47 @@ function flush() {
 function exit() {
 	outPort.sendSysex(SYSEX_BYE);
 }
+
+function PrepMidi(data1, data2) {
+	let ix = -1;
+	let isValue = false;
+	if (data1 >= CC_MSB_ValueBase && data1 < CC_MSB_ValueBase+8) {
+		ix = data1 - CC_MSB_ValueBase;
+		this.values[ix] = data2 << 7;
+		isValue = true;
+	}
+	if (data1 >= CC_LSB_ValueBase && data1 < CC_LSB_ValueBase+8) {
+		ix = data1 - CC_LSB_ValueBase;
+		this.values[ix] += data2;
+		isValue = true;
+	}
+	if (data1 >= CC_ButtonBase && data1 < CC_ButtonBase+8) {
+		ix = data1 - CC_ButtonBase;
+	}
+	return [ix, isValue];
+}
+
+ctrlMode.prepMidi = PrepMidi;
+ctrlMode.onMidi0 = function(data1, data2) {
+	const [ix, isValue] = this.prepMidi(data1,data2);
+	if (ix >= 0 &&  isValue) {
+		println("ctrl.knob[" + ix + "]=" + this.values[ix]/16384.0);
+		remoteControlCursor.getParameter(ix).value().set(values[ix]/16384.0);
+	}
+	return [ix, isValue];
+};
+
+navMode.prepMidi = PrepMidi;
+navMode.onMidi0 = function(data1, data2) {
+	const [ix, isValue] = this.prepMidi(data1,data2);
+	if (ix >= 0 && isValue) {
+		println("nav.knob[" + ix + "]=" + this.values[ix]/16384.0);
+		/* TODO: implement nav-mode:
+		  - don't queue midi messages from bitwig param changes (only update
+			internal state), see onParamValueChange, onParamNameChange,
+			queueDisplayValueChanges
+		*/
+
+	}
+	return [ix, isValue];
+};
