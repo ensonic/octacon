@@ -160,7 +160,7 @@ void UI::drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, c
 }
 
 void UI::drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1) {
-    unsigned w=64;
+    unsigned w=64-2;
     d->setDrawColor(1);
     d->setMaxClipWindow();
     // value box
@@ -169,15 +169,15 @@ void UI::drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1) {
     d->drawFrame(x, 49, 63, 14);
     d->drawBox(x, 50, p1.value/2, 13);
     // param name
-    d->setClipWindow(x, 14, x + w, 24);
+    d->setClipWindow(x, 14, x + w, 25);
     d->drawStr(x, 24, p0.name.c_str());  // 24 = 16 + 7 + 1
-    d->setClipWindow(x, 36, x + w, 46);
+    d->setClipWindow(x, 36, x + w, 47);
     d->drawStr(x, 46, p1.name.c_str());
     // pretty name
     x++; w--;
     d->setDrawColor(2);
-    d->setClipWindow(x, 2, x + w, 4+8);
+    d->setClipWindow(x, 2, x + w, 2+11);
     d->drawStr(x+1, 2+8, p0.prettyvalue.c_str());
-    d->setClipWindow(x, 51, x + w, 53+8);
+    d->setClipWindow(x, 51, x + w, 51+11);
     d->drawStr(x+1,51+8, p1.prettyvalue.c_str());
 }
