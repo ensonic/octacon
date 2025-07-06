@@ -62,11 +62,23 @@ The following commands are implemented:
 
 # Code
 
+## Controller
+
 The code uses [platformIO](https://platformio.org/). See [platformio.ini](platformio.ini) for the used libraries.
 
-```
+```shell
 alias pio=$HOME/.platformio/penv/bin/pio
 pio test
+```
+
+## DAW Extensions
+
+The daw extension for Bitwig is written in java.
+
+```shell
+cd daw/bitwig
+mvn install
+cp target/Octacon.bwextension ~/Bitwig\ Studio/Extensions/
 ```
 
 # Debugging
