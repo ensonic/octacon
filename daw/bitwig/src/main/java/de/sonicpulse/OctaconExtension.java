@@ -87,8 +87,6 @@ public class OctaconExtension extends ControllerExtension {
     public void changeMode() {
         modes[mode].deactivate();
         mode = 1 - mode;
-        // toggle led-color on device
-        outPort.sendSysex(SYSEX_BEGIN + "03 " + String.format("%02x ", mode) + SYSEX_END);
         modes[mode].activate();
     }
 

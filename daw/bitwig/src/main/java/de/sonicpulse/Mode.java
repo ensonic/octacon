@@ -8,6 +8,7 @@ public class Mode {
     static final int CC_LSB_ValueBase = 9 + 32;
     static final int CC_ButtonBase = 9 + 8;
 
+    protected int ledPattern = 0;
     protected int[] values = new int[NumControls];
     protected String[][] displayValues = new String[NumControls][2];
     protected String[] names = new String[NumControls];
@@ -26,6 +27,7 @@ public class Mode {
 
     public void activate() {
         active = true;
+        sendLedPattern(ledPattern);
         for (int i = 0; i < NumControls; i++) {
             sendParamValue(i, values[i]);
             sendParamDisplayValue(i, displayValues[i][0]);
@@ -39,6 +41,7 @@ public class Mode {
     }
 
     public void onMidi0(ShortMidiMessage msg) {
+        if (!active) return;
         int ix = -1;
         int data1 = msg.getData1();
         int data2 = msg.getData2();
@@ -62,7 +65,7 @@ public class Mode {
     }
 
     public void handleButton(int ix, int data1, int data2) {
-        Logger.log("base.button[%d]=%d", ix, data2);
+        // Logger.log("base.button[%d]=%d", ix, data2);
         if (data2 > 0) {
             ext.changeMode();
         }
@@ -72,6 +75,7 @@ public class Mode {
     }
 
     public void handlePrettyValues() {
+        if (!active) return;
         for (int ix = 0; ix < NumControls; ix++) {
             String[] dv = displayValues[ix];
             if (dv[0] == dv[1]) {
@@ -84,19 +88,16 @@ public class Mode {
     }
 
     protected void sendParamValue(int ix, int value) {
-        if (active) {
-            ext.sendMidiCC(
-                new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_MSB_ValueBase + ix, value >> 7),
-                new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_LSB_ValueBase + ix, value & 0x127));
-
-        }
+        if (!active) return;
+        ext.sendMidiCC(
+            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_MSB_ValueBase + ix, value >> 7),
+            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_LSB_ValueBase + ix, value & 127));
     }
 
     protected void sendParamName(int ix, String value) {
-        if (active) {
-            String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
-            ext.sendMidiSysEx(String.format("00 %02x %02x %s", ix, value.length(), hexValue));
-        }
+        if (!active) return;
+        String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
+        ext.sendMidiSysEx(String.format("00 %02x %02x %s", ix, value.length(), hexValue));
     }
 
     protected void sendParamDisplayValue(int ix, String value) {
@@ -105,7 +106,13 @@ public class Mode {
         displayValues[ix][1] = "\n";
     }
 
+    protected void sendLedPattern(int mode) {
+        // toggle led-color on device
+        ext.sendMidiSysEx(String.format("03 %02x ", mode));
+    }
+
     protected void sendInfoString(String value) {
+        if (!active) return;
         String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
         ext.sendMidiSysEx(String.format("04 %02x %s", value.length(), hexValue));
     }

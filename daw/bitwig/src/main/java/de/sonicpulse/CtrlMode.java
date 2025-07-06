@@ -19,6 +19,7 @@ public class CtrlMode extends Mode {
 
     public CtrlMode(OctaconExtension ext, ControllerHost host) {
         super(ext);
+        ledPattern = 0;
         // active device that follows UI selection
         cursorTrack = host.createCursorTrack(0, 0);
         cursorDevice = cursorTrack.createCursorDevice();
@@ -30,6 +31,7 @@ public class CtrlMode extends Mode {
             param.setIndication(true);
             param.value().addValueObserver(16384, (value) -> {
                 sendParamValue(ix, value);
+                values[ix] = value;
             });
             param.name().addValueObserver((value) -> {
                 sendParamName(ix, value);
