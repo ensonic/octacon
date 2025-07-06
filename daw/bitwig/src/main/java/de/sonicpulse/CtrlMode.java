@@ -57,7 +57,7 @@ public class CtrlMode extends Mode {
                     return;
                 }
                 info.put(key, value);
-                sendInfoString();
+                updateInfoString();
             });
         });
         // complex workaround to get all page-names (see TODO above)
@@ -67,7 +67,7 @@ public class CtrlMode extends Mode {
                 return;
             }
             info.put("page", pageNames[pageIx]);
-            sendInfoString();
+            updateInfoString();
         });
         remoteControlCursor.selectedPageIndex().addValueObserver((value) -> {
             pageIx = value;
@@ -75,7 +75,7 @@ public class CtrlMode extends Mode {
                 return;
             }
             info.put("page", pageNames[pageIx]);
-            sendInfoString();
+            updateInfoString();
         });
 
     }
@@ -85,15 +85,14 @@ public class CtrlMode extends Mode {
         remoteControlCursor.getParameter(ix).value().set(values[ix] / 16384.0);
     }
 
-    private void sendInfoString() {
+    @Override
+    public void updateInfoString() {
         if (!active) {
             return;
         }
-        String value = String.format("%s/%s/%s",
+        sendInfoString(String.format("%s/%s/%s",
             info.getOrDefault("track", ""),
             info.getOrDefault("device", ""),
-            info.getOrDefault("page", ""));
-        String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
-        ext.sendMidiSysEx(String.format("04 %02x %s", value.length(), hexValue));
+            info.getOrDefault("page", "")));
     }
 }

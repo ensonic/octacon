@@ -21,4 +21,11 @@ public class NavMode extends Mode {
         Logger.log("nav.knob[%d]=%f", ix, ((float) values[ix]) / 16384.0);
         // TODO: handle navigation
     }
+
+    public void updateInfoString() {
+        if (!active) {
+            return;
+        }
+        sendInfoString("");
+    }
 }

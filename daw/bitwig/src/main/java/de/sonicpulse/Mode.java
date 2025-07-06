@@ -31,6 +31,7 @@ public class Mode {
             sendParamDisplayValue(i, displayValues[i][0]);
             sendParamName(i, names[i]); 
         }
+        updateInfoString();
     }
 
     public void deactivate() {
@@ -67,6 +68,9 @@ public class Mode {
         }
     }
 
+    public void updateInfoString() {
+    }
+
     public void handlePrettyValues() {
         for (int ix = 0; ix < NumControls; ix++) {
             String[] dv = displayValues[ix];
@@ -99,5 +103,10 @@ public class Mode {
         // this will trigger the change detection in the deferred sending
         // we need to use a string that we would otherwise not have
         displayValues[ix][1] = "\n";
+    }
+
+    protected void sendInfoString(String value) {
+        String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
+        ext.sendMidiSysEx(String.format("04 %02x %s", value.length(), hexValue));
     }
 }
