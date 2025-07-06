@@ -17,7 +17,7 @@ public class NavMode extends Mode {
 
 
     @Override
-    void handleValue(int ix, int data1, int data2) {
+    public void handleValue(int ix, int data1, int data2) {
         Logger.log("nav.knob[%d]=%f", ix, ((float) values[ix]) / 16384.0);
         // TODO: handle navigation
     }

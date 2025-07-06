@@ -24,7 +24,7 @@ public class Mode {
         }
     }
 
-    void activate() {
+    public void activate() {
         active = true;
         for (int i = 0; i < NumControls; i++) {
             sendParamValue(i, values[i]);
@@ -33,11 +33,11 @@ public class Mode {
         }
     }
 
-    void deactivate() {
+    public void deactivate() {
         active = false;
     }
 
-    void onMidi0(ShortMidiMessage msg) {
+    public void onMidi0(ShortMidiMessage msg) {
         int ix = -1;
         int data1 = msg.getData1();
         int data2 = msg.getData2();
@@ -55,33 +55,31 @@ public class Mode {
             ix = data1 - CC_ButtonBase;
             handleButton(ix, data1, data2);
         }
-        Logger.log("base onMidi0 done");
     }
 
-    void handleValue(int ix, int data1, int data2) {
+    public void handleValue(int ix, int data1, int data2) {
     }
 
-    void handleButton(int ix, int data1, int data2) {
+    public void handleButton(int ix, int data1, int data2) {
         Logger.log("base.button[%d]=%d", ix, data2);
         if (data2 > 0) {
             ext.changeMode();
         }
     }
 
-    void handlePrettyValues() {
+    public void handlePrettyValues() {
         for (int ix = 0; ix < NumControls; ix++) {
             String[] dv = displayValues[ix];
             if (dv[0] == dv[1]) {
                 continue;
             }
             dv[1] = dv[0];
-            Logger.log("refresh [%d]=%s", ix, dv[1]);
             String hexValue = ext.toHexString(dv[1].replaceAll("[^\\x00-\\x7F]", "").trim());
             ext.sendMidiSysEx(String.format("01 %02x %02x %s", ix, dv[1].length(), hexValue));
         }
     }
 
-    void sendParamValue(int ix, int value) {
+    protected void sendParamValue(int ix, int value) {
         if (active) {
             ext.sendMidiCC(
                 new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_MSB_ValueBase + ix, value >> 7),
@@ -90,14 +88,14 @@ public class Mode {
         }
     }
 
-    void sendParamName(int ix, String value) {
+    protected void sendParamName(int ix, String value) {
         if (active) {
             String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
             ext.sendMidiSysEx(String.format("00 %02x %02x %s", ix, value.length(), hexValue));
         }
     }
 
-    void sendParamDisplayValue(int ix, String value) {
+    protected void sendParamDisplayValue(int ix, String value) {
         // this will trigger the change detection in the deferred sending
         // we need to use a string that we would otherwise not have
         displayValues[ix][1] = "\n";
