@@ -15,11 +15,6 @@ import com.bitwig.extension.controller.ControllerExtension;
  *   cd daw/bitwig
  *   mvn install
  *   cp target/Octacon.bwextension ~/Bitwig\ Studio/Extensions/
- * 
- * todo: port more from js code
- * - info text
- *   - maybe move completely to ctrlmode, in navmode we'll watch similar thing,
- *     but use it for different purposes
  */
 public class OctaconExtension extends ControllerExtension {
     static final String SYSEX_BEGIN = "F0 7D ";
