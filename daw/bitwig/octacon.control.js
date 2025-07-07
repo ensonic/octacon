@@ -87,7 +87,7 @@ function init() {
 			sendInfoString();
 		}
 		//println("pages: " + pageNames.join(","))
-	})
+	});
 	remoteControlCursor.selectedPageIndex().addValueObserver(function(value) { 
 		pageIx = value;
 		if (typeof pageNames[pageIx] !== 'undefined') {
@@ -95,7 +95,7 @@ function init() {
 			println("Name[page]: " + pageNames[pageIx]);
 			sendInfoString();
 		}
-	})
+	});
 
 	// navigation along the device strip with one device active
 	// TODO: also checkout cursorDevice.createSiblingsDeviceBank(1)/createLayerBank()/createDrumPadBank()
@@ -109,13 +109,13 @@ function init() {
 		}
 		println("cursor-device-pos: " + value);
 		deviceBank.scrollIntoView(value+1);
-	})
+	});
 
 	// active track that follows UI selection
-	trackBank = host.createTrackBank(1,1,0, true)
+	trackBank = host.createTrackBank(1,1,0, true);
 	trackBank.itemCount().addValueObserver(function(value) {
 		println("track-bank-length: " + value);
-	})
+	});
 	cursorTrack.position().addValueObserver(function(value) {
 		if (value < 0) {
 			return;
@@ -123,7 +123,7 @@ function init() {
 		// this counts different that the flattened trackBank
 		println("cursor-track-pos: " + value);
 		// trackBank.scrollIntoView(value+1);
-	})
+	});
 
 	for (let j = 0; j < remoteControlCursor.getParameterCount(); j++) {
 		let param = remoteControlCursor.getParameter(j);
