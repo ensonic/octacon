@@ -56,6 +56,17 @@
 							<destinationFile>${project.build.directory}/Octacon.bwextension</destinationFile>
 						</configuration>
 					</execution>
+					<execution>
+						<id>install</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<sourceFile>${project.build.directory}/${project.build.finalName}.jar</sourceFile>
+							<destinationFile>${user.home}/Bitwig Studio/Extensions/Octacon.bwextension</destinationFile>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>
