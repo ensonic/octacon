@@ -4,17 +4,23 @@ import com.bitwig.extension.controller.api.ControllerHost;
 import com.bitwig.extension.controller.api.CursorDevice;
 import com.bitwig.extension.controller.api.CursorRemoteControlsPage;
 import com.bitwig.extension.controller.api.CursorTrack;
+import com.bitwig.extension.controller.api.DeviceBank;
+import com.bitwig.extension.controller.api.TrackBank;
 
 public class NavMode extends Mode {
     private CursorTrack cursorTrack;
     private CursorDevice cursorDevice;
     private CursorRemoteControlsPage remoteControlCursor;
+    private TrackBank trackBank;
+    private DeviceBank deviceBank;
     private String[] pageNames = null;
-    private int pageIx = -1;
+    private int pageIx = -1, trackIx = -1, deviceIx = -1;
+    private int trackSize = 0, deviceSize = 0;
 
     private enum NavParam {
         Track(0, "Track"),
         Device(4, "Device"),
+        /* Nested Chain: cursorDevice.hasSlots() cursorDevice.slotNames() */
         Page(7,"Page");
 
         public final int ix;
@@ -38,19 +44,70 @@ public class NavMode extends Mode {
     public NavMode(OctaconExtension ext, ControllerHost host) {
         super(ext);
         ledPattern = 1;
-        // TODO: are the more axes?
-        names[NavParam.Track.ix] = NavParam.Track.label;
-        names[NavParam.Device.ix] = NavParam.Device.label;
-        names[NavParam.Page.ix] = NavParam.Page.label;
-
-        displayValues[NavParam.Track.ix][0] = "Unknown";
-        displayValues[NavParam.Device.ix][0] = "Unknown";
+        for (NavParam np : NavParam.values()) {
+            names[np.ix] = np.label;
+        }
 
         // active device that follows UI selection
         cursorTrack = host.createCursorTrack(0, 0);
         cursorDevice = cursorTrack.createCursorDevice();
         remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(NumControls);
 
+        // Track navigation
+        trackBank = host.createTrackBank(1,1,0, true);
+        trackBank.followCursorTrack(cursorTrack);
+        cursorTrack.name().addValueObserver((value) -> {
+            displayValues[NavParam.Track.ix][0]=value;
+        });
+        cursorTrack.position().addValueObserver((value) -> {
+            trackIx = value;
+            Logger.log("Track: %d/%d", trackIx, trackSize);
+            if (trackIx < 0 || trackSize <= trackIx) {
+                return;
+            }
+            // this counts different that the flattened trackBank
+            trackBank.scrollIntoView(trackIx+1);
+            values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
+            sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
+        });
+        trackBank.itemCount().addValueObserver((value) -> {
+            trackSize = value;
+            Logger.log("Track: %d/%d", trackIx, trackSize);
+            if (trackIx < 0 || trackSize <= trackIx) {
+                return;
+            }
+            values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
+            sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
+        });
+
+        // Device navigation
+        deviceBank = cursorDevice.deviceChain().createDeviceBank(1);
+        // API does not exist
+        // deviceBank.followCursorDevice(cursorDevice);
+        cursorDevice.name().addValueObserver((value)->{
+            displayValues[NavParam.Device.ix][0]=value;
+        });
+        cursorDevice.position().addValueObserver((value) -> {
+            deviceIx = value;
+            Logger.log("Device: %d/%d", deviceIx, deviceSize);
+            if (deviceIx < 0 || deviceSize <= pageIx) {
+                return;
+            }
+            deviceBank.scrollIntoView(deviceIx+1);
+            values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
+            sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
+        });
+        deviceBank.itemCount().addValueObserver((value) -> {
+            deviceSize = value;
+            Logger.log("Device: %d/%d", deviceIx, deviceSize);
+            if (deviceIx < 0 || deviceSize <= pageIx) {
+                return;
+            }
+            values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
+            sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
+        });
+
+        // Page navigation
         remoteControlCursor.pageNames().addValueObserver((value) -> {
             pageNames = value;
             if (pageIx < 0 || pageNames == null || pageNames.length <= pageIx) {
@@ -79,17 +136,31 @@ public class NavMode extends Mode {
         if (np == null) {
             return;
         }
+        int newIx;
         switch (np) {
             case Track:
-                // TODO: implement
+                newIx = (int)((values[ix] * trackSize) / 16384.0);
+                if (newIx != trackIx) {
+                    trackIx = newIx;
+                    trackBank.scrollIntoView(trackIx+1);
+                }
                 break;
             case Device:
-                // TODO: implement
+                newIx = (int)((values[ix] * deviceSize) / 16384.0);
+                if (newIx != deviceIx) {
+                    Logger.log("change device from %d -> %d", deviceIx, newIx);
+                    int delta = newIx - deviceIx;
+                    deviceIx = newIx;
+                    deviceBank.scrollIntoView(deviceIx+1);
+                    // Error: This bank is not following any cursor
+                    // deviceBank.cursorIndex().set(0);
+                    deviceBank.scrollBy(delta);
+                }
                 break;
             case Page:
-                int newPageIx = (int)((values[ix] * pageNames.length) / 16384.0);
-                if (newPageIx != pageIx) {
-                    pageIx = newPageIx;
+                newIx = (int)((values[ix] * pageNames.length) / 16384.0);
+                if (newIx != pageIx) {
+                    pageIx = newIx;
                     remoteControlCursor.selectedPageIndex().set(pageIx);
                 }
                 break;
