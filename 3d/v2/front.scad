@@ -20,7 +20,7 @@ casehs2=casehs/2.0;
 caseh=100.0 + (2 * wd) + casehs; 
 caseh2=caseh/2.0;
 // 4mm for inserts, 16mm from top of panel to FPC mount
-cased=20;
+cased=24;
 cased2=cased/2.0;
 
 // pcb size
@@ -172,7 +172,7 @@ difference() {
             translate([0,em+4,0]) { cube([3.5,0.6,cased+10], center=true); }
             
             // usb hole (see back.scad for positioning, nneds to be x-flipped!)
-            translate([+(pcbw2-((33-1)+3)*2.54),+caseh2, 17-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
+            translate([+(pcbw2-((33-1)+3)*2.54),+caseh2, (cased-3.0)-(cased2-wd)]) { cube([8.0, wd*4, 4], center=true);}
             
         }
 
