@@ -83,6 +83,12 @@ difference() {
             // the debug headers extend ~ 1 mm beyond the pcb
             // startpin=21, -1 (to start a zero), +2 (to get middle of the 4 pins)
             translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+5)]) { cube([11.0, wd*4, 3.0], center=true);}
+            
+            // groves for the matching ridges on the bottom
+            translate([-(casew2-wd),+5,cased2]) { cube([wd,10,10], center=true); }
+            translate([+(casew2-wd),-5,cased2]) { cube([wd,10,10], center=true); }
+            translate([+5,-(caseh2-wd),cased2]) { cube([10,wd,10], center=true); }
+            translate([-5,+(caseh2-wd),cased2]) { cube([10,wd,10], center=true); }
         }
 
         // tubes for case screws
@@ -92,11 +98,11 @@ difference() {
         translate([-(casew2-3.5),+(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
         translate([+(casew2-3.5),+(caseh2-3.5),wd2]) { screw_tube(cased-wd, m3d); }
 
-        // ridges to fit matching holes on the front
-        translate([-(casew2-wd2),0,cased2]) { cube([wd2-0.2,8,8], center=true); }
-        translate([+(casew2-wd2),0,cased2]) { cube([wd2-0.2,8,8], center=true); }
-        translate([0,-(caseh2-wd2),cased2]) { cube([8,wd2-0.2,8], center=true); }
-        translate([0,+(caseh2-wd2),cased2]) { cube([8,wd2-0.2,8], center=true); }
+        // ridges for the matching groves on the bottom
+        translate([-(casew2-wd),-5,cased2]) { rotate([0,+5,0]) { cube([wd,10,10], center=true); }}
+        translate([+(casew2-wd),+5,cased2]) { rotate([0,-5,0]) { cube([wd,10,10], center=true); }}
+        translate([-5,-(caseh2-wd),cased2]) { rotate([-5,0,0]) { cube([10,wd,10], center=true); }}
+        translate([+5,+(caseh2-wd),cased2]) { rotate([+5,0,0]) { cube([10,wd,10], center=true); }}
     }
 
     // in test-mode generate only parts of the case

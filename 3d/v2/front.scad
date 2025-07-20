@@ -160,11 +160,11 @@ difference() {
             translate([-(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
             translate([+(casew2-3.5),+(caseh2-3.5),wd2]) { insert_tube_hole(cased-wd, m4d); }
 
-            // groves for the matching ridges on the back
-            translate([-(casew2-wd2),0,cased2]) { cube([wd2,10,10], center=true); }
-            translate([+(casew2-wd2),0,cased2]) { cube([wd2,10,10], center=true); }
-            translate([0,-(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
-            translate([0,+(caseh2-wd2),cased2]) { cube([10,wd2,10], center=true); }
+            // groves for the matching ridges on the bottom
+            translate([-(casew2-wd),+5,cased2]) { cube([wd,10,10], center=true); }
+            translate([+(casew2-wd),-5,cased2]) { cube([wd,10,10], center=true); }
+            translate([+5,-(caseh2-wd),cased2]) { cube([10,wd,10], center=true); }
+            translate([-5,+(caseh2-wd),cased2]) { cube([10,wd,10], center=true); }
 
             // holes for split pin legs: 8mm apart, 3mm width, 
             // position so that we can bend the legs to the middle
@@ -198,6 +198,12 @@ difference() {
             translate([+pcbw2-lppx2,0,0]) { led_shield(); }
             translate([+pcbw2-lppx1,0,0]) { led_shield(); }
         }       
+
+        // ridges for the matching groves on the bottom
+        translate([-(casew2-wd),-5,cased2]) { rotate([0,+5,0]) { cube([wd,10,10], center=true); }}
+        translate([+(casew2-wd),+5,cased2]) { rotate([0,-5,0]) { cube([wd,10,10], center=true); }}
+        translate([-5,-(caseh2-wd),cased2]) { rotate([-5,0,0]) { cube([10,wd,10], center=true); }}
+        translate([+5,+(caseh2-wd),cased2]) { rotate([+5,0,0]) { cube([10,wd,10], center=true); }}
     }
 
     // in test-mode generate only parts of the case
