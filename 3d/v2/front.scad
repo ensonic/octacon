@@ -227,7 +227,8 @@ module round_corner(h, d, x, y) {
 
 module insert_tube(h, d) {
     difference() {
-        cylinder(h=h, d=d+2.5, center=true);
+        // at +2.5, I had to file the sides a bit to fit the led pcd
+        cylinder(h=h, d=d+2.3, center=true);
         insert_tube_hole(h, d);
     }
 }
