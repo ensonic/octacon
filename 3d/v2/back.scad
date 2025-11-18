@@ -82,7 +82,7 @@ difference() {
             // 11.0 x 3.0 mm
             // the debug headers extend ~ 1 mm beyond the pcb
             // startpin=21, -1 (to start a zero), +2 (to get middle of the 4 pins)
-            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+5)]) { cube([11.0, wd*4, 3.0], center=true);}
+            translate([-(pcbw2-((21-1)+2)*2.54),+caseh2,-cased2+(wd+5)]) { cube([11.0, wd*4, 3.5], center=true);}
             
             // groves for the matching ridges on the bottom
             translate([-(casew2-wd),+5,cased2]) { cube([wd,10,10], center=true); }
