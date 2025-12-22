@@ -94,7 +94,6 @@ The daw extension for Bitwig is written in java.
 ```shell
 cd daw/bitwig
 mvn install
-cp target/Octacon.bwextension ~/Bitwig\ Studio/Extensions/
 ```
 
 # Debugging
