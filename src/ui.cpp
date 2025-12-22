@@ -87,6 +87,10 @@ void UI::enableExtInfo(bool enable) {
 
 void UI::setInfo(char *str, unsigned len) {
     int li = sizeof(info1) - 1;
+    for (unsigned i=0; i < sizeof(info1); i++) {
+        info1[i]='\0';
+        info2[i]='\0';
+    }
 
     // copy string into both display parts
     int sp = 0, dp = 0;
@@ -96,12 +100,10 @@ void UI::setInfo(char *str, unsigned len) {
         }
         info1[dp]=str[sp];
         if (d1->getStrWidth(info1)>=128) {
-            info1[dp]='\0';
             break;
         }
         dp++; sp++;
     }
-    info1[dp]='\0';
     if (sp < len) {
         dp = 0;
         while(true) {
@@ -110,12 +112,10 @@ void UI::setInfo(char *str, unsigned len) {
             }
             info2[dp]=str[sp];
             if (d1->getStrWidth(info2)>=128) {
-                info2[dp]='\0';
                 break;
             }
             dp++; sp++;
         }
-        info2[dp]='\0';
     }
     draw(0);
     draw(2);
