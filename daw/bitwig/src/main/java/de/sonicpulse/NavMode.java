@@ -22,8 +22,8 @@ public class NavMode extends Mode {
     private int trackSize = 0, deviceSize = 0;
     private Parameter lastParam;
 
-    private final static int maxTracksPerBank = 100;
-    private final static int maxDevicesPerBank = 100;
+    private static final int maxTracksPerBank = 100;
+    private static final int maxDevicesPerBank = 100;
 
     private enum NavParam {
         Track(0, "Track"),
