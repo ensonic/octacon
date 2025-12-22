@@ -9,13 +9,14 @@ import com.bitwig.extension.controller.api.ControllerHost;
 
 public class OctaconExtensionDefinition extends ControllerExtensionDefinition {
     private static final UUID DRIVER_ID = UUID.fromString("d3e99136-1be1-442d-8c48-9cb422898d93");
+    private static final String Model = "Octacon";
 
     public OctaconExtensionDefinition() {
     }
 
     @Override
     public String getName() {
-        return "Octacon";
+        return Model;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class OctaconExtensionDefinition extends ControllerExtensionDefinition {
 
     @Override
     public String getHardwareModel() {
-        return "Octacon";
+        return Model;
     }
 
     @Override
@@ -61,11 +62,18 @@ public class OctaconExtensionDefinition extends ControllerExtensionDefinition {
     @Override
     public void listAutoDetectionMidiPortNames(final AutoDetectionMidiPortNamesList list,
             final PlatformType platformType) {
+        switch (platformType) {
+            case LINUX:
+               list.add(new String[] {Model + " MIDI 1"}, new String[] {Model + " MIDI 1"});
+               break;
+            default:
+               list.add(new String[] {Model}, new String[] {Model});
+               break;
+         }
     }
 
     @Override
     public String getHelpFilePath() {
-        // TODO: where is this used?
         return "https://github.com/ensonic/octacon/blob/main/README.md";
     }
 
