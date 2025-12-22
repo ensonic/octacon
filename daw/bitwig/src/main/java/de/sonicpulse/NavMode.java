@@ -7,6 +7,8 @@ import com.bitwig.extension.controller.api.CursorTrack;
 import com.bitwig.extension.controller.api.DeviceBank;
 import com.bitwig.extension.controller.api.TrackBank;
 
+// Use the knobs to select a different page, track, device
+// Note: only page nave work satisfactory
 public class NavMode extends Mode {
     private CursorTrack cursorTrack;
     private CursorDevice cursorDevice;

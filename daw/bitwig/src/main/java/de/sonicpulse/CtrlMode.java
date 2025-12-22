@@ -9,6 +9,7 @@ import com.bitwig.extension.controller.api.CursorRemoteControlsPage;
 import com.bitwig.extension.controller.api.CursorTrack;
 import com.bitwig.extension.controller.api.RemoteControl;
 
+// Control a device/track/project page of 8 parameters
 public class CtrlMode extends Mode {
     private CursorTrack cursorTrack;
     private CursorDevice cursorDevice;
