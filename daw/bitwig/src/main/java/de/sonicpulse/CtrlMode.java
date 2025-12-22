@@ -28,7 +28,8 @@ public class CtrlMode extends Mode {
 
         for (int i = 0; i < remoteControlCursor.getParameterCount(); i++) {
             final int ix = i;
-            RemoteControl param = remoteControlCursor.getParameter(i);
+            final RemoteControl param = remoteControlCursor.getParameter(i);
+
             param.setIndication(true);
             param.value().addValueObserver(16384, (value) -> {
                 sendParamValue(ix, value);
@@ -41,9 +42,10 @@ public class CtrlMode extends Mode {
             param.displayedValue().addValueObserver((value) -> {
                 displayValues[ix][0] = value;
             });
-            /* TODO: also send how many ticks we have
-             * param.discreteValueCount().addValueObserver(...)
-             */
+            param.discreteValueCount().addValueObserver((value) -> {
+                ticks[ix] = Math.max(0, value);
+                sendParamTicks(ix,ticks[ix]);
+            });
         }
 
         Map.of(

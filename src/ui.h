@@ -20,6 +20,7 @@
 struct UIParam {
     String name, prettyvalue;
     unsigned value;
+    unsigned ticks;
 };
 
 class UI {
@@ -37,12 +38,13 @@ public:
     void setValue(unsigned ix, unsigned value);
     void enableExtInfo(bool enable);
     void setInfo(char *str, unsigned len);
+    void setTicks(unsigned ix, unsigned ticks);
 
 private:
     U8G2 *d1, *d2;
     static const unsigned numParams = 8;
     bool extInfo = false;
-    UIParam p[numParams] = { {"","",0}, };
+    UIParam p[numParams] = { {"","",0, 0}, };
     char info1[50],info2[50]; // info text in the middle, ~26 chars per display
     
     void initPage(U8G2 *d);

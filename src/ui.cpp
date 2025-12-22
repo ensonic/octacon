@@ -121,6 +121,15 @@ void UI::setInfo(char *str, unsigned len) {
     draw(2);
 }
 
+void UI::setTicks(unsigned ix, unsigned ticks) {
+    if (ix >= numParams) {
+        dbg.printf("ix=%u > %u\n", ix, numParams);
+        return;
+    }
+    p[ix].ticks = ticks;
+    draw(ix);
+}
+
 // private impl
 
 void UI::initPage(U8G2 *d) {
@@ -180,4 +189,26 @@ void UI::drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1) {
     d->drawStr(x+1, 2+8, p0.prettyvalue.c_str());
     d->setClipWindow(x, 51, x + w, 51+11);
     d->drawStr(x+1,51+8, p1.prettyvalue.c_str());
+    // tick marks
+    d->setMaxClipWindow();
+    if (p0.ticks > 0) {
+        float s = 63.5 / (float)p0.ticks;
+        if (s > 1.0) {
+            for (unsigned t = 1; t < p0.ticks; t ++) {
+                unsigned xp =  x + (int)(-.5 + t * s);
+                d->drawPixel(xp, 12);
+                d->drawPixel(xp, 13);
+            }
+        }
+    }
+    if (p1.ticks > 0) {
+        unsigned s = 63.5 / (float)p1.ticks;
+        if (s > 1.0) {
+            for (unsigned t = 1; t < p1.ticks; t ++) {
+                unsigned xp =  x + (int)(-.5 + t * s);
+                d->drawPixel(xp, 49 + 12);
+                d->drawPixel(xp, 49 + 13);
+            }
+        }
+    }   
 }

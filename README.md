@@ -67,8 +67,9 @@ The following commands are implemented:
 * 02: (recv) daw connected? : `02 + <connected>`
   * connected: 0 = off, anything else = on
   * when off, parameter names and pretty values are generated
-
-(TODO: document additional cmds)
+* 03: (recv) led pattern: `03 + <pattern>`
+* 04: (recv) info string: `04 + <len> + <text>`
+* 05: (recv) param ticks: `05 + <ix> <value>`
 
 # Code
 

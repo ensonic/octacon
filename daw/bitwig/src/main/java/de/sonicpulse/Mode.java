@@ -10,6 +10,7 @@ public class Mode {
 
     protected int ledPattern = 0;
     protected int[] values = new int[NumControls];
+    protected int[] ticks = new int[NumControls];
     protected String[][] displayValues = new String[NumControls][2];
     protected String[] names = new String[NumControls];
     protected boolean active;
@@ -32,6 +33,7 @@ public class Mode {
             sendParamValue(i, values[i]);
             sendParamDisplayValue(i, displayValues[i][0]);
             sendParamName(i, names[i]); 
+            sendParamTicks(i, ticks[i]);
         }
         updateInfoString();
     }
@@ -104,6 +106,11 @@ public class Mode {
         // this will trigger the change detection in the deferred sending
         // we need to use a string that we would otherwise not have
         displayValues[ix][1] = "\n";
+    }
+
+    protected void sendParamTicks(int ix, int value) {
+        if (!active) return;
+        ext.sendMidiSysEx(String.format("05 %02x %02x", ix, value));
     }
 
     protected void sendLedPattern(int mode) {

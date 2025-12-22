@@ -20,6 +20,7 @@ enum class SysExCmd : byte {
     DawSync,        // daw attached?
     LedPattern,     // chose on of the supported led (color) patterns
     Info,           // info message shown in the middle
+    Ticks,          // number of ticks for a discrete parameter
 };
 
 class MidiIO {
