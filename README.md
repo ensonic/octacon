@@ -15,6 +15,18 @@ A midi controller tailored for bitwig with 8 encoders, 8 knobs and displays.
 The `pcb` subfolder has the the schematics and the pcb files for [easyeda](https://easyeda.com/).
 You should be able to import them into the Std Edition.
 
+## flashing a release
+
+* download and install [pictool](https://github.com/raspberrypi/picotool)
+* download an octacon firmware release (TODO) or build it yourself
+* connect octacon to usb
+* flash using this command:
+  ```shell
+  # TODO: does not work (No accessible RP-series devices in BOOTSEL mode were found.)
+  picotool load -f ./.pio/build/rpipico2/firmware.uf2
+  ```
+  * See https://github.com/raspberrypi/picotool/issues/88
+
 ## enclosure
 
 The `3d` subfolder has openScad files and rendered STL for 3d printing.
