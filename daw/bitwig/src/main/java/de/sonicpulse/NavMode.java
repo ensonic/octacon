@@ -5,6 +5,8 @@ import com.bitwig.extension.controller.api.CursorDevice;
 import com.bitwig.extension.controller.api.CursorRemoteControlsPage;
 import com.bitwig.extension.controller.api.CursorTrack;
 import com.bitwig.extension.controller.api.DeviceBank;
+import com.bitwig.extension.controller.api.LastClickedParameter;
+import com.bitwig.extension.controller.api.Parameter;
 import com.bitwig.extension.controller.api.TrackBank;
 
 // Use the knobs to select a different page, track, device
@@ -18,9 +20,11 @@ public class NavMode extends Mode {
     private String[] pageNames = null;
     private int pageIx = -1, trackIx = -1, deviceIx = -1;
     private int trackSize = 0, deviceSize = 0;
+    private Parameter lastParam;
 
     private enum NavParam {
         Track(0, "Track"),
+        LastPar(3,""),
         Device(4, "Device"),
         /* Nested Chain: cursorDevice.hasSlots() cursorDevice.slotNames() */
         Page(7,"Page");
@@ -49,6 +53,25 @@ public class NavMode extends Mode {
         for (NavParam np : NavParam.values()) {
             names[np.ix] = np.label;
         }
+
+        // last clicked parameter (actually "last hovered")
+        final LastClickedParameter lcp = host.createLastClickedParameter("OctaconLastClickedParam", "Octacon Last Clicked");
+        lastParam =  lcp.parameter();
+        lastParam.value().addValueObserver(16384, (value) -> {
+            sendParamValue(NavParam.LastPar.ix, value);
+            values[NavParam.LastPar.ix] = value;
+        });
+        lastParam.name().addValueObserver((value) -> {
+            sendParamName(NavParam.LastPar.ix, value);
+            names[NavParam.LastPar.ix]=value;
+        });
+        lastParam.displayedValue().addValueObserver((value) -> {
+                displayValues[NavParam.LastPar.ix][0] = value;
+            });
+        lastParam.discreteValueCount().addValueObserver((value) -> {
+            ticks[NavParam.LastPar.ix] = Math.max(0, value);
+            sendParamTicks(NavParam.LastPar.ix, ticks[NavParam.LastPar.ix]);
+        });
 
         // active device that follows UI selection
         cursorTrack = host.createCursorTrack(0, 0);
@@ -152,6 +175,9 @@ public class NavMode extends Mode {
                     trackIx = newIx;
                     trackBank.scrollIntoView(trackIx+1);
                 }
+                break;
+            case LastPar:
+                lastParam.set(values[ix] / 16384.0);
                 break;
             case Device:
                 newIx = (int)((values[ix] * deviceSize) / 16384.0);

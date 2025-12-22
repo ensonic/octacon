@@ -20,6 +20,7 @@ public class Mode {
         this.ext = ext;
         for (int i = 0; i < NumControls; i++) {
             values[i] = 0;
+            ticks[i] = 0;
             displayValues[i][0] = "";
             displayValues[i][1] = "";
             names[i] = "";
