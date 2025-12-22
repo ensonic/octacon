@@ -22,6 +22,9 @@ public class NavMode extends Mode {
     private int trackSize = 0, deviceSize = 0;
     private Parameter lastParam;
 
+    private final static int maxTracksPerBank = 100;
+    private final static int maxDevicesPerBank = 100;
+
     private enum NavParam {
         Track(0, "Track"),
         LastPar(3,""),
@@ -79,36 +82,42 @@ public class NavMode extends Mode {
         remoteControlCursor = cursorDevice.createCursorRemoteControlsPage(NumControls);
 
         // Track navigation
-        trackBank = host.createTrackBank(1,1,0, true);
-        trackBank.followCursorTrack(cursorTrack);
+        trackBank = host.createTrackBank(maxTracksPerBank,1,0, true);
+        // this causes erratic jumping when navigating.
+        //trackBank.followCursorTrack(cursorTrack);
         cursorTrack.name().addValueObserver((value) -> {
             displayValues[NavParam.Track.ix][0]=value;
         });
         trackBank.itemCount().addValueObserver((value) -> {
             trackSize = value;
-            Logger.log("Track: %d/%d", trackIx, trackSize);
+            Logger.log("Track(Ct): %d/%d", trackIx, trackSize);
+            if (trackSize < 0) {
+                ticks[NavParam.Track.ix] = 0;
+                sendParamTicks(NavParam.Track.ix, ticks[NavParam.Track.ix]);
+                return;
+            }
+            ticks[NavParam.Track.ix] = trackSize;
+            sendParamTicks(NavParam.Track.ix, ticks[NavParam.Track.ix]);
             if (trackIx < 0 || trackSize <= trackIx) {
                 return;
             }
             values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
             sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
-            ticks[NavParam.Track.ix] = trackSize;
-            sendParamTicks(NavParam.Track.ix, ticks[NavParam.Track.ix]);
         });
-        cursorTrack.position().addValueObserver((value) -> {
+        trackBank.cursorIndex().addValueObserver((value) -> {
             trackIx = value;
-            Logger.log("Track: %d/%d", trackIx, trackSize);
-            if (trackIx < 0 || trackSize <= trackIx) {
+            Logger.log("Track(Ix): %d/%d", trackIx, trackSize);
+            if (trackSize < 0 || trackIx < 0 || trackSize <= trackIx) {
+                values[NavParam.Track.ix] = 0;
+                sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
                 return;
             }
-            // this counts different that the flattened trackBank
-            trackBank.scrollIntoView(trackIx+1);
             values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
             sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
         });
 
         // Device navigation
-        deviceBank = cursorDevice.deviceChain().createDeviceBank(1);
+        deviceBank = cursorDevice.deviceChain().createDeviceBank(maxDevicesPerBank);
         // API does not exist
         // deviceBank.followCursorDevice(cursorDevice);
         cursorDevice.name().addValueObserver((value)->{
@@ -116,22 +125,28 @@ public class NavMode extends Mode {
         });
         deviceBank.itemCount().addValueObserver((value) -> {
             deviceSize = value;
-            Logger.log("Device: %d/%d", deviceIx, deviceSize);
-            if (deviceIx < 0 || deviceSize <= pageIx) {
+            Logger.log("Device(Ct): %d/%d", deviceIx, deviceSize);
+            if (deviceSize < 0) {
+                ticks[NavParam.Device.ix] = 0;
+                sendParamTicks(NavParam.Device.ix, ticks[NavParam.Device.ix]);
+                return;
+            }
+            ticks[NavParam.Device.ix] = deviceSize;
+            sendParamTicks(NavParam.Device.ix, ticks[NavParam.Device.ix]);
+            if (deviceIx < 0 || deviceSize <= deviceIx) {
                 return;
             }
             values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
             sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
-            ticks[NavParam.Device.ix] = deviceSize;
-            sendParamTicks(NavParam.Device.ix, ticks[pageNames.length]);
         });
         cursorDevice.position().addValueObserver((value) -> {
             deviceIx = value;
-            Logger.log("Device: %d/%d", deviceIx, deviceSize);
-            if (deviceIx < 0 || deviceSize <= pageIx) {
+            Logger.log("Device(Ix): %d/%d", deviceIx, deviceSize);
+            if (deviceSize < 0 || deviceIx < 0 || deviceSize <= deviceIx) {
+                values[NavParam.Device.ix] = 0;
+                sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
                 return;
             }
-            deviceBank.scrollIntoView(deviceIx+1);
             values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
             sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
         });
@@ -140,17 +155,21 @@ public class NavMode extends Mode {
         remoteControlCursor.pageNames().addValueObserver((value) -> {
             pageNames = value;
             if (pageIx < 0 || pageNames == null || pageNames.length <= pageIx) {
+                ticks[NavParam.Page.ix] = 0;
+                sendParamTicks(NavParam.Page.ix, ticks[NavParam.Page.ix]);
                 return;
             }
             values[NavParam.Page.ix] = (int)(pageIx * 16384.0 / pageNames.length);
             sendParamValue(NavParam.Page.ix, values[NavParam.Page.ix]);
+            displayValues[NavParam.Page.ix][0]=pageNames[pageIx];
             ticks[NavParam.Page.ix] = pageNames.length;
             sendParamTicks(NavParam.Page.ix, ticks[NavParam.Page.ix]);
-            displayValues[NavParam.Page.ix][0]=pageNames[pageIx];
         });
         remoteControlCursor.selectedPageIndex().addValueObserver((value) -> {
             pageIx = value;
             if (pageIx < 0 || pageNames == null || pageNames.length <= pageIx) {
+                values[NavParam.Page.ix] = 0;
+                sendParamValue(NavParam.Page.ix, values[NavParam.Page.ix]);
                 return;
             }
             values[NavParam.Page.ix] = (int)(pageIx * 16384.0 / pageNames.length);
@@ -172,8 +191,15 @@ public class NavMode extends Mode {
             case Track:
                 newIx = (int)((values[ix] * trackSize) / 16384.0);
                 if (newIx != trackIx) {
+                    Logger.log("change track from %d -> %d", trackIx, newIx);
+                    int delta = newIx - trackIx;
                     trackIx = newIx;
-                    trackBank.scrollIntoView(trackIx+1);
+                    trackBank.scrollIntoView(trackIx);
+                    if (delta > 0) {
+                        cursorTrack.selectNext();
+                    } else {
+                        cursorTrack.selectPrevious();
+                    }
                 }
                 break;
             case LastPar:
@@ -183,12 +209,9 @@ public class NavMode extends Mode {
                 newIx = (int)((values[ix] * deviceSize) / 16384.0);
                 if (newIx != deviceIx) {
                     Logger.log("change device from %d -> %d", deviceIx, newIx);
-                    int delta = newIx - deviceIx;
                     deviceIx = newIx;
-                    deviceBank.scrollIntoView(deviceIx+1);
-                    // Error: This bank is not following any cursor
-                    // deviceBank.cursorIndex().set(0);
-                    deviceBank.scrollBy(delta);
+                    deviceBank.scrollIntoView(deviceIx);
+                    cursorDevice.selectDevice(deviceBank.getDevice(deviceIx));
                 }
                 break;
             case Page:
