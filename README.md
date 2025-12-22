@@ -20,12 +20,10 @@ You should be able to import them into the Std Edition.
 * download and install [pictool](https://github.com/raspberrypi/picotool)
 * download an octacon firmware release (TODO) or build it yourself
 * connect octacon to usb
-* flash using this command:
+* flash using this command under linux:
   ```shell
-  # TODO: does not work (No accessible RP-series devices in BOOTSEL mode were found.)
-  picotool load -f ./.pio/build/rpipico2/firmware.uf2
+  stty 1200 /dev/ttyACM0 && sleep 2 && picotool load -f ./.pio/build/rpipico2/firmware.uf2 && picotool reboot
   ```
-  * See https://github.com/raspberrypi/picotool/issues/88
 
 ## enclosure
 
@@ -81,7 +79,12 @@ The code uses [platformIO](https://platformio.org/). See [platformio.ini](platfo
 ```shell
 alias pio=$HOME/.platformio/penv/bin/pio
 pio test
+pio run -t upload
 ```
+
+With regards to flashing from command-line, see:
+  * https://github.com/maxgerhardt/platform-raspberrypi/issues/65
+  * https://github.com/raspberrypi/picotool/issues/88
 
 ## DAW Extensions
 
