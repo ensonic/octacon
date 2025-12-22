@@ -45,7 +45,7 @@ public class OctaconExtensionDefinition extends ControllerExtensionDefinition {
 
     @Override
     public int getRequiredAPIVersion() {
-        return 20;
+        return 20;  // keep in sync with pom.xml
     }
 
     @Override
