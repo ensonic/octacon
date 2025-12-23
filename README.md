@@ -3,6 +3,8 @@ A midi controller tailored for bitwig with 8 encoders, 8 knobs and 2 displays.
 
 ![wip image of the day](/docs/img/20250614.v3_build.jpg)
 
+The lastest [video tour](https://www.youtube.com/watch?v=5QIr6vOy6ok) can be watched on youtube.
+
 # Getting started
 
 ## Flashing a release
