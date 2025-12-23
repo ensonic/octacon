@@ -1,9 +1,9 @@
 # Octacon
-A midi controller tailored for bitwig with 8 encoders, 8 knobs and 2 displays.
+A midi controller tailored for bitwig with 8 endless pots, 8 buttons, 8 leds, 2 displays and a touch sensor.
 
 ![wip image of the day](/docs/img/20250614.v3_build.jpg)
 
-The lastest [video tour](https://www.youtube.com/watch?v=5QIr6vOy6ok) can be watched on youtube.
+The latest [video tour](https://www.youtube.com/watch?v=5QIr6vOy6ok) can be watched on youtube.
 
 # Getting started
 
