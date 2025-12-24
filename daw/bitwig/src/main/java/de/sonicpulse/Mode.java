@@ -7,10 +7,13 @@ public class Mode {
     static final int CC_MSB_ValueBase = 9;
     static final int CC_LSB_ValueBase = 9 + 32;
     static final int CC_ButtonBase = 9 + 8;
+    // flag constants
+    static final int Flag_HasAutomation = 1 << 0;
 
     protected int ledPattern = 0;
     protected int[] values = new int[NumControls];
     protected int[] ticks = new int[NumControls];
+    protected int[] flags = new int[NumControls]; // could use java.util.BitSet, but seems overkill
     protected String[][] displayValues = new String[NumControls][2];
     protected String[] names = new String[NumControls];
     protected boolean active;
@@ -21,6 +24,7 @@ public class Mode {
         for (int i = 0; i < NumControls; i++) {
             values[i] = 0;
             ticks[i] = 0;
+            flags[i] = 0;
             displayValues[i][0] = "";
             displayValues[i][1] = "";
             names[i] = "";
@@ -35,6 +39,7 @@ public class Mode {
             sendParamDisplayValue(i, displayValues[i][0]);
             sendParamName(i, names[i]); 
             sendParamTicks(i, ticks[i]);
+            sendParamFlags(i, flags[i]);
         }
         updateInfoString();
     }
@@ -112,6 +117,11 @@ public class Mode {
     protected void sendParamTicks(int ix, int value) {
         if (!active) return;
         ext.sendMidiSysEx(String.format("05 %02x %02x", ix, value));
+    }
+
+    protected void sendParamFlags(int ix, int value) {
+        if (!active) return;
+        ext.sendMidiSysEx(String.format("06 %02x %02x", ix, value));
     }
 
     protected void sendLedPattern(int mode) {

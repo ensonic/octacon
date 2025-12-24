@@ -46,6 +46,14 @@ public class CtrlMode extends Mode {
                 ticks[ix] = Math.max(0, value);
                 sendParamTicks(ix,ticks[ix]);
             });
+            param.hasAutomation().addValueObserver((value) -> {
+                if (value) {
+                    flags[ix] |= Flag_HasAutomation;
+                } else {
+                    flags[ix] &= ~Flag_HasAutomation;
+                }
+                sendParamFlags(ix, flags[ix]);
+            });
         }
 
         Map.of(

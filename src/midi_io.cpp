@@ -97,6 +97,15 @@ static void midiSysExTicks(byte *data, unsigned size) {
    ui.setTicks(data[0], data[1]);
 }
 
+static void midiSysExFlags(byte *data, unsigned size) {
+   // param-ix, value
+   if (size < 2) {
+       dbg.printf("sysexcmd-%u too short\n", SysExCmd::Ticks);
+       return;
+   }
+   ui.setFlags(data[0], data[1]);
+}
+
 static void midiSysExCB(byte * data, unsigned size) {
     // min size is 'F0 7D` + cmd + 'F7'
     if (size < 4) {
@@ -128,6 +137,9 @@ static void midiSysExCB(byte * data, unsigned size) {
             break;
         case SysExCmd::Ticks:
             midiSysExTicks(data, size);
+            break;
+        case SysExCmd::Flags:
+            midiSysExFlags(data, size);
             break;
         default:
             dbg.println("sysex: unknown cmd");

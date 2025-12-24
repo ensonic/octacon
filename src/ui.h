@@ -21,6 +21,7 @@ struct UIParam {
     String name, prettyvalue;
     unsigned value;
     unsigned ticks;
+    unsigned flags;
 };
 
 class UI {
@@ -39,6 +40,7 @@ public:
     void enableExtInfo(bool enable);
     void setInfo(char *str, unsigned len);
     void setTicks(unsigned ix, unsigned ticks);
+    void setFlags(unsigned ix, unsigned ticks);
 
 private:
     U8G2 *d1, *d2;
@@ -50,6 +52,7 @@ private:
     void initPage(U8G2 *d);
     void drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, char *str);
     void drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1);
+    void drawParam(U8G2 *d, unsigned x, unsigned by, unsigned ly, UIParam &p);
 };
 
 #endif // SRC_UI_H

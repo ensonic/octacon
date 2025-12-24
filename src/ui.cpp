@@ -130,6 +130,15 @@ void UI::setTicks(unsigned ix, unsigned ticks) {
     draw(ix);
 }
 
+void UI::setFlags(unsigned ix, unsigned flags) {
+    if (ix >= numParams) {
+        dbg.printf("ix=%u > %u\n", ix, numParams);
+        return;
+    }
+    p[ix].flags = flags;
+    draw(ix);
+}
+
 // private impl
 
 void UI::initPage(U8G2 *d) {
@@ -169,46 +178,41 @@ void UI::drawPage(U8G2 *d, UIParam &p0, UIParam &p1, UIParam &p2, UIParam &p3, c
 }
 
 void UI::drawColumn(U8G2 *d, unsigned x, UIParam &p0, UIParam &p1) {
-    unsigned w=64-2;
+    drawParam(d, x, 0, 24, p0);
+    drawParam(d, x, 49, 46, p1);
+}
+
+void UI::drawParam(U8G2 *d, unsigned x, unsigned by, unsigned ly, UIParam &p) {
+    unsigned w = 64-2;
     d->setDrawColor(1);
     d->setMaxClipWindow();
     // value box
-    d->drawFrame(x, 0, 63, 14);
-    d->drawBox(x, 1, p0.value/2, 13);
-    d->drawFrame(x, 49, 63, 14);
-    d->drawBox(x, 50, p1.value/2, 13);
+    d->drawFrame(x, by, 63, 14);
+    d->drawBox(x, by + 1, p.value/2, 13);
     // param name
-    d->setClipWindow(x, 14, x + w, 25);
-    d->drawStr(x, 24, p0.name.c_str());  // 24 = 16 + 7 + 1
-    d->setClipWindow(x, 36, x + w, 47);
-    d->drawStr(x, 46, p1.name.c_str());
+    d->setClipWindow(x, ly - 10, x + w, ly+1);
+    d->drawStr(x, ly, p.name.c_str());  // 24 = 16 + 7 + 1
     // pretty name
-    x++; w--;
     d->setDrawColor(2);
-    d->setClipWindow(x, 2, x + w, 2+11);
-    d->drawStr(x+1, 2+8, p0.prettyvalue.c_str());
-    d->setClipWindow(x, 51, x + w, 51+11);
-    d->drawStr(x+1,51+8, p1.prettyvalue.c_str());
+    d->setClipWindow(x + 1, by + 2, x + (w - 1), by + 13);
+    d->drawStr(x + 2, by + 10, p.prettyvalue.c_str());
     // tick marks
     d->setMaxClipWindow();
-    if (p0.ticks > 0) {
-        float s = 63.5 / (float)p0.ticks;
+    if (p.ticks > 0) {
+        float s = 63.5 / (float)p.ticks;
         if (s > 1.0) {
-            for (unsigned t = 1; t < p0.ticks; t ++) {
-                unsigned xp =  x + (int)(-.5 + t * s);
-                d->drawPixel(xp, 12);
-                d->drawPixel(xp, 13);
+            for (unsigned t = 1; t < p.ticks; t ++) {
+                unsigned xp =  x + (int)(t * s);
+                d->drawPixel(xp, by + 12);
+                d->drawPixel(xp, by + 13);
             }
         }
     }
-    if (p1.ticks > 0) {
-        unsigned s = 63.5 / (float)p1.ticks;
-        if (s > 1.0) {
-            for (unsigned t = 1; t < p1.ticks; t ++) {
-                unsigned xp =  x + (int)(-.5 + t * s);
-                d->drawPixel(xp, 49 + 12);
-                d->drawPixel(xp, 49 + 13);
-            }
-        }
-    }   
+    // draw automation hint
+    if (p.flags & 0x01) {
+        d->setDrawColor(0);
+        d->drawTriangle(x + 58, by, x + 63, by, x + 63, by + 5);
+        d->setDrawColor(1);
+        d->drawLine(x + 57, by, x + 63, by + 6);
+    }
 }
