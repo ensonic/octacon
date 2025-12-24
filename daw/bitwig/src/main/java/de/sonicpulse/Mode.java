@@ -33,13 +33,13 @@ public class Mode {
 
     public void activate() {
         active = true;
-        sendLedPattern(ledPattern);
+        sendLedPattern();
         for (int i = 0; i < NumControls; i++) {
-            sendParamValue(i, values[i]);
-            sendParamDisplayValue(i, displayValues[i][0]);
-            sendParamName(i, names[i]); 
-            sendParamTicks(i, ticks[i]);
-            sendParamFlags(i, flags[i]);
+            sendParamValue(i);
+            sendParamDisplayValue(i);
+            sendParamName(i); 
+            sendParamTicks(i);
+            sendParamFlags(i);
         }
         updateInfoString();
     }
@@ -95,38 +95,38 @@ public class Mode {
         }
     }
 
-    protected void sendParamValue(int ix, int value) {
+    protected void sendParamValue(int ix) {
         if (!active) return;
         ext.sendMidiCC(
-            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_MSB_ValueBase + ix, value >> 7),
-            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_LSB_ValueBase + ix, value & 127));
+            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_MSB_ValueBase + ix, values[ix] >> 7),
+            new ShortMidiMessage(ShortMidiMessage.CONTROL_CHANGE, CC_LSB_ValueBase + ix, values[ix] & 127));
     }
 
-    protected void sendParamName(int ix, String value) {
+    protected void sendParamName(int ix) {
         if (!active) return;
-        String hexValue = ext.toHexString(value.replaceAll("[^\\x00-\\x7F]", "").trim());
-        ext.sendMidiSysEx(String.format("00 %02x %02x %s", ix, value.length(), hexValue));
+        String hexValue = ext.toHexString(names[ix].replaceAll("[^\\x00-\\x7F]", "").trim());
+        ext.sendMidiSysEx(String.format("00 %02x %02x %s", ix, names[ix].length(), hexValue));
     }
 
-    protected void sendParamDisplayValue(int ix, String value) {
+    protected void sendParamDisplayValue(int ix) {
         // this will trigger the change detection in the deferred sending
         // we need to use a string that we would otherwise not have
         displayValues[ix][1] = "\n";
     }
 
-    protected void sendParamTicks(int ix, int value) {
+    protected void sendParamTicks(int ix) {
         if (!active) return;
-        ext.sendMidiSysEx(String.format("05 %02x %02x", ix, value));
+        ext.sendMidiSysEx(String.format("05 %02x %02x", ix, ticks[ix]));
     }
 
-    protected void sendParamFlags(int ix, int value) {
+    protected void sendParamFlags(int ix) {
         if (!active) return;
-        ext.sendMidiSysEx(String.format("06 %02x %02x", ix, value));
+        ext.sendMidiSysEx(String.format("06 %02x %02x", ix, flags[ix]));
     }
 
-    protected void sendLedPattern(int mode) {
+    protected void sendLedPattern() {
         // toggle led-color on device
-        ext.sendMidiSysEx(String.format("03 %02x ", mode));
+        ext.sendMidiSysEx(String.format("03 %02x ", ledPattern));
     }
 
     protected void sendInfoString(String value) {

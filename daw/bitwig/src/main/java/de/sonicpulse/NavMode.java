@@ -61,19 +61,19 @@ public class NavMode extends Mode {
         final LastClickedParameter lcp = host.createLastClickedParameter("OctaconLastClickedParam", "Octacon Last Clicked");
         lastParam =  lcp.parameter();
         lastParam.value().addValueObserver(16384, (value) -> {
-            sendParamValue(NavParam.LastPar.ix, value);
             values[NavParam.LastPar.ix] = value;
+            sendParamValue(NavParam.LastPar.ix);
         });
         lastParam.name().addValueObserver((value) -> {
-            sendParamName(NavParam.LastPar.ix, value);
             names[NavParam.LastPar.ix]=value;
+            sendParamName(NavParam.LastPar.ix);
         });
         lastParam.displayedValue().addValueObserver((value) -> {
                 displayValues[NavParam.LastPar.ix][0] = value;
             });
         lastParam.discreteValueCount().addValueObserver((value) -> {
             ticks[NavParam.LastPar.ix] = Math.max(0, value);
-            sendParamTicks(NavParam.LastPar.ix, ticks[NavParam.LastPar.ix]);
+            sendParamTicks(NavParam.LastPar.ix);
         });
 
         // active device that follows UI selection
@@ -93,27 +93,27 @@ public class NavMode extends Mode {
             Logger.log("Track(Ct): %d/%d", trackIx, trackSize);
             if (trackSize < 0) {
                 ticks[NavParam.Track.ix] = 0;
-                sendParamTicks(NavParam.Track.ix, ticks[NavParam.Track.ix]);
+                sendParamTicks(NavParam.Track.ix);
                 return;
             }
             ticks[NavParam.Track.ix] = trackSize;
-            sendParamTicks(NavParam.Track.ix, ticks[NavParam.Track.ix]);
+            sendParamTicks(NavParam.Track.ix);
             if (trackIx < 0 || trackSize <= trackIx) {
                 return;
             }
             values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
-            sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
+            sendParamValue(NavParam.Track.ix);
         });
         trackBank.cursorIndex().addValueObserver((value) -> {
             trackIx = value;
             Logger.log("Track(Ix): %d/%d", trackIx, trackSize);
             if (trackSize < 0 || trackIx < 0 || trackSize <= trackIx) {
                 values[NavParam.Track.ix] = 0;
-                sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
+                sendParamValue(NavParam.Track.ix);
                 return;
             }
             values[NavParam.Track.ix] = (int)(trackIx * 16384.0 / trackSize);
-            sendParamValue(NavParam.Track.ix, values[NavParam.Track.ix]);
+            sendParamValue(NavParam.Track.ix);
         });
 
         // Device navigation
@@ -128,27 +128,27 @@ public class NavMode extends Mode {
             Logger.log("Device(Ct): %d/%d", deviceIx, deviceSize);
             if (deviceSize < 0) {
                 ticks[NavParam.Device.ix] = 0;
-                sendParamTicks(NavParam.Device.ix, ticks[NavParam.Device.ix]);
+                sendParamTicks(NavParam.Device.ix);
                 return;
             }
             ticks[NavParam.Device.ix] = deviceSize;
-            sendParamTicks(NavParam.Device.ix, ticks[NavParam.Device.ix]);
+            sendParamTicks(NavParam.Device.ix);
             if (deviceIx < 0 || deviceSize <= deviceIx) {
                 return;
             }
             values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
-            sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
+            sendParamValue(NavParam.Device.ix);
         });
         cursorDevice.position().addValueObserver((value) -> {
             deviceIx = value;
             Logger.log("Device(Ix): %d/%d", deviceIx, deviceSize);
             if (deviceSize < 0 || deviceIx < 0 || deviceSize <= deviceIx) {
                 values[NavParam.Device.ix] = 0;
-                sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
+                sendParamValue(NavParam.Device.ix);
                 return;
             }
             values[NavParam.Device.ix] = (int)(deviceIx * 16384.0 / deviceSize);
-            sendParamValue(NavParam.Device.ix, values[NavParam.Device.ix]);
+            sendParamValue(NavParam.Device.ix);
         });
 
         // Page navigation
@@ -156,24 +156,24 @@ public class NavMode extends Mode {
             pageNames = value;
             if (pageIx < 0 || pageNames == null || pageNames.length <= pageIx) {
                 ticks[NavParam.Page.ix] = 0;
-                sendParamTicks(NavParam.Page.ix, ticks[NavParam.Page.ix]);
+                sendParamTicks(NavParam.Page.ix);
                 return;
             }
             values[NavParam.Page.ix] = (int)(pageIx * 16384.0 / pageNames.length);
-            sendParamValue(NavParam.Page.ix, values[NavParam.Page.ix]);
+            sendParamValue(NavParam.Page.ix);
             displayValues[NavParam.Page.ix][0]=pageNames[pageIx];
             ticks[NavParam.Page.ix] = pageNames.length;
-            sendParamTicks(NavParam.Page.ix, ticks[NavParam.Page.ix]);
+            sendParamTicks(NavParam.Page.ix);
         });
         remoteControlCursor.selectedPageIndex().addValueObserver((value) -> {
             pageIx = value;
             if (pageIx < 0 || pageNames == null || pageNames.length <= pageIx) {
                 values[NavParam.Page.ix] = 0;
-                sendParamValue(NavParam.Page.ix, values[NavParam.Page.ix]);
+                sendParamValue(NavParam.Page.ix);
                 return;
             }
             values[NavParam.Page.ix] = (int)(pageIx * 16384.0 / pageNames.length);
-            sendParamValue(NavParam.Page.ix, values[NavParam.Page.ix]);
+            sendParamValue(NavParam.Page.ix);
             displayValues[NavParam.Page.ix][0]=pageNames[pageIx];
         });
 

@@ -32,19 +32,19 @@ public class CtrlMode extends Mode {
 
             param.setIndication(true);
             param.value().addValueObserver(16384, (value) -> {
-                sendParamValue(ix, value);
                 values[ix] = value;
+                sendParamValue(ix);
             });
             param.name().addValueObserver((value) -> {
-                sendParamName(ix, value);
                 names[ix] = value;
+                sendParamName(ix);
             });
             param.displayedValue().addValueObserver((value) -> {
                 displayValues[ix][0] = value;
             });
             param.discreteValueCount().addValueObserver((value) -> {
                 ticks[ix] = Math.max(0, value);
-                sendParamTicks(ix,ticks[ix]);
+                sendParamTicks(ix);
             });
             param.hasAutomation().addValueObserver((value) -> {
                 if (value) {
@@ -52,7 +52,7 @@ public class CtrlMode extends Mode {
                 } else {
                     flags[ix] &= ~Flag_HasAutomation;
                 }
-                sendParamFlags(ix, flags[ix]);
+                sendParamFlags(ix);
             });
         }
 
