@@ -85,7 +85,7 @@ void UI::enableExtInfo(bool enable) {
     draw(2);
 }
 
-void UI::setInfo(char *str, unsigned len) {
+void UI::setInfo(const char *str, unsigned len) {
     int li = sizeof(info1) - 1;
     for (unsigned i=0; i < sizeof(info1); i++) {
         info1[i]='\0';

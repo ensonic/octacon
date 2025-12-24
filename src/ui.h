@@ -38,7 +38,7 @@ public:
     void setPrettyValue(unsigned ix, char *str, unsigned len);
     void setValue(unsigned ix, unsigned value);
     void enableExtInfo(bool enable);
-    void setInfo(char *str, unsigned len);
+    void setInfo(const char *str, unsigned len);
     void setTicks(unsigned ix, unsigned ticks);
     void setFlags(unsigned ix, unsigned ticks);
 
